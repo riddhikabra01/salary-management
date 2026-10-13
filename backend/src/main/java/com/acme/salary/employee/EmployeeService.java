@@ -1,5 +1,7 @@
 package com.acme.salary.employee;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +29,11 @@ public class EmployeeService {
     @Transactional(readOnly = true)
     public Employee getById(Long id) {
         return repository.findById(id).orElseThrow(() -> new EmployeeNotFoundException(id));
+    }
+
+    @Transactional(readOnly = true)
+    public Page<Employee> search(EmployeeFilter filter, Pageable pageable) {
+        return repository.findAll(EmployeeSpecifications.matching(filter), pageable);
     }
 
     @Transactional
