@@ -52,6 +52,12 @@ public class Employee {
 
     public Employee(String fullName, String email, String jobTitle, String department,
                     String country, BigDecimal salary, String currency, LocalDate joiningDate) {
+        updateDetails(fullName, email, jobTitle, department, country, salary, currency, joiningDate);
+    }
+
+    public final void updateDetails(String fullName, String email, String jobTitle,
+                                    String department, String country, BigDecimal salary,
+                                    String currency, LocalDate joiningDate) {
         this.fullName = requireText(fullName, "Full name is required");
         this.email = requireEmail(email);
         this.jobTitle = requireText(jobTitle, "Job title is required");
