@@ -1,0 +1,7 @@
+target/
+node_modules/
+*.db
+.idea/
+.vscode/
+*.iml
+data/
