@@ -25,6 +25,27 @@ const DEFAULT_SORT = 'fullName';
 const SEARCH_DELAY_MS = 300;
 const NOTIFICATION_MS = 4000;
 
+const COLUMN_LABELS: Record<string, string> = {
+  fullName: 'Name',
+  email: 'Email',
+  jobTitle: 'Job title',
+  department: 'Department',
+  country: 'Country',
+  salary: 'Salary',
+  joiningDate: 'Joined',
+};
+
+function describeDirection(column: string, direction: SortDirection): string {
+  const ascending = direction === 'asc';
+  if (column === 'salary') {
+    return ascending ? 'low to high' : 'high to low';
+  }
+  if (column === 'joiningDate') {
+    return ascending ? 'oldest first' : 'newest first';
+  }
+  return ascending ? 'A–Z' : 'Z–A';
+}
+
 @Component({
   selector: 'app-employee-list',
   standalone: true,
@@ -68,6 +89,7 @@ export class EmployeeListComponent implements OnInit {
   readonly loading = signal(false);
   readonly errorMessage = signal<string | null>(null);
   readonly options = signal<FilterOptions>({ countries: [], departments: [], jobTitles: [] });
+  readonly filtersOpen = signal(true);
 
   pageIndex = 0;
   pageSize = 25;
@@ -131,6 +153,30 @@ export class EmployeeListComponent implements OnInit {
 
   clearFilters(): void {
     this.filters.reset();
+  }
+
+  toggleFilters(): void {
+    this.filtersOpen.update((open) => !open);
+  }
+
+  activeFilterCount(): number {
+    return Object.values(this.filters.getRawValue()).filter((value) => value.trim() !== '').length;
+  }
+
+  isDefaultSort(): boolean {
+    return this.sortBy === DEFAULT_SORT && this.direction === 'asc';
+  }
+
+  sortSummary(): string {
+    const primary = `${COLUMN_LABELS[this.sortBy] ?? this.sortBy} (${describeDirection(this.sortBy, this.direction)})`;
+    return this.sortBy === DEFAULT_SORT ? primary : `${primary}, then Name (A–Z)`;
+  }
+
+  resetSort(): void {
+    this.sortBy = DEFAULT_SORT;
+    this.direction = 'asc';
+    this.pageIndex = 0;
+    this.reload$.next();
   }
 
   addEmployee(): void {

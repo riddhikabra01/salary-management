@@ -16,42 +16,66 @@
 
   <div class="card filters-card">
     <form class="filters" [formGroup]="filters">
-      <mat-form-field appearance="outline" class="search">
-        <mat-label>Search name or email</mat-label>
-        <input matInput formControlName="search" />
-      </mat-form-field>
-
-      <mat-form-field appearance="outline">
-        <mat-label>Country</mat-label>
-        <mat-select formControlName="country">
-          <mat-option value="">All countries</mat-option>
-          @for (country of options().countries; track country) {
-            <mat-option [value]="country">{{ country }}</mat-option>
+      <div class="filters-top">
+        <button
+          type="button"
+          class="filters-toggle"
+          (click)="toggleFilters()"
+          [attr.aria-expanded]="filtersOpen()"
+          aria-controls="filter-fields"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M10 18h4v-2h-4v2zM3 6v2h18V6H3zm3 7h12v-2H6v2z" />
+          </svg>
+          <span>Filters</span>
+          @if (activeFilterCount() > 0) {
+            <span class="badge" [attr.aria-label]="activeFilterCount() + ' active filters'">{{ activeFilterCount() }}</span>
           }
-        </mat-select>
-      </mat-form-field>
+        </button>
 
-      <mat-form-field appearance="outline">
-        <mat-label>Department</mat-label>
-        <mat-select formControlName="department">
-          <mat-option value="">All departments</mat-option>
-          @for (department of options().departments; track department) {
-            <mat-option [value]="department">{{ department }}</mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
+        <mat-form-field appearance="outline" class="search">
+          <mat-label>Search name or email</mat-label>
+          <input matInput formControlName="search" />
+        </mat-form-field>
 
-      <mat-form-field appearance="outline">
-        <mat-label>Job title</mat-label>
-        <mat-select formControlName="jobTitle">
-          <mat-option value="">All job titles</mat-option>
-          @for (jobTitle of options().jobTitles; track jobTitle) {
-            <mat-option [value]="jobTitle">{{ jobTitle }}</mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
+        @if (activeFilterCount() > 0) {
+          <button mat-stroked-button type="button" class="clear" (click)="clearFilters()">Clear filters</button>
+        }
+      </div>
 
-      <button mat-stroked-button type="button" class="clear" (click)="clearFilters()">Clear filters</button>
+      @if (filtersOpen()) {
+        <div class="filters-fields" id="filter-fields">
+          <mat-form-field appearance="outline">
+            <mat-label>Country</mat-label>
+            <mat-select formControlName="country">
+              <mat-option value="">All countries</mat-option>
+              @for (country of options().countries; track country) {
+                <mat-option [value]="country">{{ country }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Department</mat-label>
+            <mat-select formControlName="department">
+              <mat-option value="">All departments</mat-option>
+              @for (department of options().departments; track department) {
+                <mat-option [value]="department">{{ department }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Job title</mat-label>
+            <mat-select formControlName="jobTitle">
+              <mat-option value="">All job titles</mat-option>
+              @for (jobTitle of options().jobTitles; track jobTitle) {
+                <mat-option [value]="jobTitle">{{ jobTitle }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+      }
     </form>
   </div>
 
@@ -64,10 +88,18 @@
       <p class="error" role="alert">{{ message }}</p>
     }
 
+    <div class="sort-bar">
+      <span class="sort-summary">Sorted by <strong>{{ sortSummary() }}</strong></span>
+      @if (!isDefaultSort()) {
+        <button mat-button type="button" class="reset-sort" (click)="resetSort()">Reset sort</button>
+      }
+    </div>
+
     <div class="table-wrapper">
       <table
         mat-table
         matSort
+        matSortDisableClear
         [dataSource]="employees()"
         [matSortActive]="sortBy"
         [matSortDirection]="direction"
