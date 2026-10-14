@@ -1,0 +1,42 @@
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin-top: 16px;
+}
+
+.filters .search {
+  flex: 1 1 260px;
+}
+
+.filters mat-form-field {
+  min-width: 180px;
+}
+
+.clear {
+  margin-bottom: 22px;
+}
+
+.error {
+  color: #b3261e;
+  margin: 12px 0;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+}
+
+.numeric {
+  text-align: right;
+}
+
+.empty {
+  padding: 32px 16px;
+  text-align: center;
+  color: rgba(0, 0, 0, 0.6);
+}

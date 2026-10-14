@@ -1,0 +1,33 @@
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
+import { Observable } from 'rxjs';
+
+import { Employee, EmployeeQuery, Page } from './employee.model';
+
+@Injectable({ providedIn: 'root' })
+export class EmployeeService {
+  private readonly http = inject(HttpClient);
+  private readonly baseUrl = '/api/employees';
+
+  list(query: EmployeeQuery): Observable<Page<Employee>> {
+    let params = new HttpParams()
+      .set('page', query.page)
+      .set('size', query.size)
+      .set('sortBy', query.sortBy)
+      .set('direction', query.direction);
+
+    const filters: Array<[string, string]> = [
+      ['search', query.search],
+      ['country', query.country],
+      ['department', query.department],
+      ['jobTitle', query.jobTitle],
+    ];
+    for (const [name, value] of filters) {
+      if (value.trim() !== '') {
+        params = params.set(name, value.trim());
+      }
+    }
+
+    return this.http.get<Page<Employee>>(this.baseUrl, { params });
+  }
+}

@@ -1,0 +1,14 @@
+.brand {
+  margin-right: 24px;
+  font-weight: 500;
+}
+
+nav a.active {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+main {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
