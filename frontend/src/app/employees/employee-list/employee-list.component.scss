@@ -1,9 +1,50 @@
+.page-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 600;
+  color: #1b2a4a;
+}
+
+.subtitle {
+  margin: 4px 0 0;
+  color: #5b6b8c;
+}
+
+.count {
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: #e1e9fd;
+  color: #1f3f8f;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.card {
+  background: #ffffff;
+  border: 1px solid #d5ddee;
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(20, 40, 90, 0.08);
+}
+
+.filters-card {
+  margin-bottom: 16px;
+  padding: 16px 16px 0;
+}
+
 .filters {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
   align-items: center;
-  margin-top: 16px;
 }
 
 .filters .search {
@@ -18,25 +59,107 @@
   margin-bottom: 22px;
 }
 
+.table-card {
+  overflow: hidden;
+}
+
 .error {
+  margin: 12px 16px;
   color: #b3261e;
-  margin: 12px 0;
 }
 
 .table-wrapper {
-  overflow-x: auto;
+  min-height: 240px;
+  max-height: calc(100vh - 380px);
+  overflow: auto;
 }
 
 table {
   width: 100%;
+  min-width: 960px;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+th[mat-header-cell] {
+  background: #e9eefb;
+  color: #1b2a4a;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  border-bottom: 2px solid #b9c6e4;
+  border-right: 1px solid #d5ddee;
+}
+
+td[mat-cell] {
+  color: #25324d;
+  border-bottom: 1px solid #e3e8f4;
+  border-right: 1px solid #edf0f8;
+}
+
+th[mat-header-cell]:last-child,
+td[mat-cell]:last-child {
+  border-right: none;
+}
+
+tr[mat-row]:nth-child(even) td[mat-cell] {
+  background: #f9fafd;
+}
+
+tr[mat-row]:hover td[mat-cell] {
+  background: #edf3ff;
+}
+
+.name {
+  font-weight: 500;
+}
+
+.pill {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: #e6edff;
+  color: #27418a;
+  font-size: 13px;
 }
 
 .numeric {
   text-align: right;
 }
 
+.salary {
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+}
+
 .empty {
-  padding: 32px 16px;
+  padding: 40px 16px;
   text-align: center;
-  color: rgba(0, 0, 0, 0.6);
+  color: #5b6b8c;
+}
+
+mat-paginator {
+  border-top: 1px solid #d5ddee;
+}
+
+@media (max-width: 600px) {
+  h1 {
+    font-size: 22px;
+  }
+
+  .filters mat-form-field,
+  .filters .search {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+
+  .clear {
+    width: 100%;
+    margin-bottom: 16px;
+  }
+
+  .table-wrapper {
+    max-height: none;
+  }
 }

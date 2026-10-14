@@ -1,4 +1,4 @@
-import { CurrencyPipe, DatePipe } from '@angular/common';
+import { CurrencyPipe, DatePipe, DecimalPipe } from '@angular/common';
 import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
@@ -27,6 +27,7 @@ const SEARCH_DELAY_MS = 300;
     ReactiveFormsModule,
     CurrencyPipe,
     DatePipe,
+    DecimalPipe,
     MatButtonModule,
     MatFormFieldModule,
     MatInputModule,
