@@ -1,0 +1,21 @@
+.fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 16px;
+  padding-top: 8px;
+}
+
+.wide {
+  grid-column: 1 / -1;
+}
+
+.error {
+  margin: 0 0 8px;
+  color: #b3261e;
+}
+
+@media (max-width: 600px) {
+  .fields {
+    grid-template-columns: 1fr;
+  }
+}

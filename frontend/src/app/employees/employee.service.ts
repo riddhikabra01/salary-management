@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import { Employee, EmployeeQuery, Page } from './employee.model';
+import { Employee, EmployeeQuery, EmployeeRequest, Page } from './employee.model';
 
 @Injectable({ providedIn: 'root' })
 export class EmployeeService {
@@ -29,5 +29,17 @@ export class EmployeeService {
     }
 
     return this.http.get<Page<Employee>>(this.baseUrl, { params });
+  }
+
+  create(request: EmployeeRequest): Observable<Employee> {
+    return this.http.post<Employee>(this.baseUrl, request);
+  }
+
+  update(id: number, request: EmployeeRequest): Observable<Employee> {
+    return this.http.put<Employee>(`${this.baseUrl}/${id}`, request);
+  }
+
+  delete(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/${id}`);
   }
 }

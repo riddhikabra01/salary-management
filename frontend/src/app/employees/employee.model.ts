@@ -10,6 +10,8 @@ export interface Employee {
   joiningDate: string;
 }
 
+export type EmployeeRequest = Omit<Employee, 'id'>;
+
 export interface Page<T> {
   content: T[];
   page: number;

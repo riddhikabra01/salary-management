@@ -7,6 +7,13 @@
   margin-bottom: 16px;
 }
 
+.header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
 h1 {
   margin: 0;
   font-size: 28px;
@@ -76,7 +83,7 @@ h1 {
 
 table {
   width: 100%;
-  min-width: 960px;
+  min-width: 1080px;
   border-collapse: separate;
   border-spacing: 0;
 }
@@ -133,6 +140,16 @@ tr[mat-row]:hover td[mat-cell] {
   font-weight: 500;
 }
 
+.actions {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.danger {
+  --mdc-text-button-label-text-color: #b3261e;
+  --mat-button-text-label-text-color: #b3261e;
+}
+
 .empty {
   padding: 40px 16px;
   text-align: center;
@@ -146,6 +163,11 @@ mat-paginator {
 @media (max-width: 600px) {
   h1 {
     font-size: 22px;
+  }
+
+  .header-actions {
+    width: 100%;
+    justify-content: space-between;
   }
 
   .filters mat-form-field,
