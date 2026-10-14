@@ -109,6 +109,26 @@ class EmployeeListControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
+    @Test
+    void breaksTiesByNameThenIdWhenSortingByAnotherField() throws Exception {
+        returnAnEmptyPage();
+
+        mockMvc.perform(get("/api/employees").param("sortBy", "salary").param("direction", "desc"))
+                .andExpect(status().isOk());
+
+        assertThat(sortOrder()).containsExactly("salary: DESC", "fullName: ASC", "id: ASC");
+    }
+
+    @Test
+    void breaksTiesByIdWhenSortingByName() throws Exception {
+        returnAnEmptyPage();
+
+        mockMvc.perform(get("/api/employees").param("sortBy", "fullName").param("direction", "desc"))
+                .andExpect(status().isOk());
+
+        assertThat(sortOrder()).containsExactly("fullName: DESC", "id: ASC");
+    }
+
     private void returnAnEmptyPage() {
         when(service.search(any(EmployeeFilter.class), any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(), PageRequest.of(0, 20), 0));
@@ -118,6 +138,10 @@ class EmployeeListControllerTest {
         ArgumentCaptor<Pageable> pageable = ArgumentCaptor.forClass(Pageable.class);
         verify(service).search(any(EmployeeFilter.class), pageable.capture());
         return pageable.getValue();
+    }
+
+    private List<String> sortOrder() {
+        return capturedPageable().getSort().stream().map(Sort.Order::toString).toList();
     }
 
     private Employee savedEmployee(Long id) {

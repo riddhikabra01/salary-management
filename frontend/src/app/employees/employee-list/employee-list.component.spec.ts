@@ -232,6 +232,79 @@ describe('EmployeeListComponent', () => {
     expect(alert.textContent).toContain('Could not load employees');
   });
 
+  it('counts only the filters that are in use', fakeAsync(() => {
+    start();
+    expect(component.activeFilterCount()).toBe(0);
+
+    component.filters.controls.country.setValue('India');
+    component.filters.controls.search.setValue('   ');
+    tick(SEARCH_DELAY_MS);
+    http.expectOne(isEmployeeRequest).flush(pageOf([ASHA]));
+
+    expect(component.activeFilterCount()).toBe(1);
+  }));
+
+  it('shows a filter icon with the number of active filters', fakeAsync(() => {
+    start();
+    component.filters.controls.country.setValue('India');
+    tick(SEARCH_DELAY_MS);
+    http.expectOne(isEmployeeRequest).flush(pageOf([ASHA]));
+    fixture.detectChanges();
+
+    const toggle: HTMLElement = fixture.nativeElement.querySelector('.filters-toggle');
+    expect(toggle.querySelector('svg')).not.toBeNull();
+    expect(toggle.querySelector('.badge')?.textContent?.trim()).toBe('1');
+  }));
+
+  it('hides and shows the dropdown filters', () => {
+    start();
+    expect(fixture.nativeElement.querySelectorAll('mat-select').length).toBe(3);
+
+    click('.filters-toggle');
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelectorAll('mat-select').length).toBe(0);
+
+    click('.filters-toggle');
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelectorAll('mat-select').length).toBe(3);
+  });
+
+  it('describes the default sort and offers no reset', () => {
+    start();
+
+    const summary: HTMLElement = fixture.nativeElement.querySelector('.sort-summary');
+    expect(summary.textContent).toContain('Name (A–Z)');
+    expect(fixture.nativeElement.querySelector('button.reset-sort')).toBeNull();
+  });
+
+  it('explains that equal values are ordered by name', () => {
+    start();
+
+    component.onSort({ active: 'salary', direction: 'desc' });
+    http.expectOne(isEmployeeRequest).flush(pageOf([ASHA, LENA]));
+    fixture.detectChanges();
+
+    const summary: HTMLElement = fixture.nativeElement.querySelector('.sort-summary');
+    expect(summary.textContent).toContain('Salary (high to low), then Name (A–Z)');
+  });
+
+  it('resets the sort to the default', () => {
+    start();
+    component.onSort({ active: 'department', direction: 'desc' });
+    http.expectOne(isEmployeeRequest).flush(pageOf([ASHA, LENA]));
+    fixture.detectChanges();
+
+    click('button.reset-sort');
+
+    const request = http.expectOne(isEmployeeRequest);
+    expect(request.request.params.get('sortBy')).toBe('fullName');
+    expect(request.request.params.get('direction')).toBe('asc');
+    expect(request.request.params.get('page')).toBe('0');
+    request.flush(pageOf([ASHA, LENA]));
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('button.reset-sort')).toBeNull();
+  });
+
   describe('adding, editing and deleting', () => {
     function reloadAfterChange(employees: Employee[] = [ASHA, LENA]): TestRequest {
       http.expectOne(isFilterOptionsRequest).flush(OPTIONS);
