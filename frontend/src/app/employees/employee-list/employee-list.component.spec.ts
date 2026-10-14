@@ -1,9 +1,14 @@
 import { HttpRequest, provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, TestRequest, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
+import { of } from 'rxjs';
 
 import { FilterOptions } from '../../insights/insights.model';
+import { ConfirmDeleteDialogComponent } from '../confirm-delete-dialog/confirm-delete-dialog.component';
+import { EmployeeFormDialogComponent } from '../employee-form-dialog/employee-form-dialog.component';
 import { Employee, Page } from '../employee.model';
 import { EmployeeListComponent } from './employee-list.component';
 
@@ -44,11 +49,14 @@ function pageOf(content: Employee[], totalElements = content.length): Page<Emplo
 }
 
 const isEmployeeRequest = (request: HttpRequest<unknown>) => request.url === '/api/employees';
+const isFilterOptionsRequest = (request: HttpRequest<unknown>) => request.url === '/api/insights/filter-options';
 
 describe('EmployeeListComponent', () => {
   let fixture: ComponentFixture<EmployeeListComponent>;
   let component: EmployeeListComponent;
   let http: HttpTestingController;
+  let dialog: MatDialog;
+  let snackBar: MatSnackBar;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -59,6 +67,9 @@ describe('EmployeeListComponent', () => {
     fixture = TestBed.createComponent(EmployeeListComponent);
     component = fixture.componentInstance;
     http = TestBed.inject(HttpTestingController);
+    dialog = TestBed.inject(MatDialog);
+    snackBar = TestBed.inject(MatSnackBar);
+    spyOn(snackBar, 'open');
   });
 
   afterEach(() => http.verify());
@@ -66,10 +77,21 @@ describe('EmployeeListComponent', () => {
   function start(employees: Employee[] = [ASHA, LENA], totalElements = employees.length): TestRequest {
     fixture.detectChanges();
     const employeeRequest = http.expectOne(isEmployeeRequest);
-    http.expectOne('/api/insights/filter-options').flush(OPTIONS);
+    http.expectOne(isFilterOptionsRequest).flush(OPTIONS);
     employeeRequest.flush(pageOf(employees, totalElements));
     fixture.detectChanges();
     return employeeRequest;
+  }
+
+  function dialogWillClose(result: unknown): jasmine.Spy {
+    return spyOn(dialog, 'open').and.returnValue({
+      afterClosed: () => of(result),
+    } as unknown as MatDialogRef<unknown>);
+  }
+
+  function click(selector: string): void {
+    const button: HTMLButtonElement = fixture.nativeElement.querySelector(selector);
+    button.click();
   }
 
   it('shows the employees returned by the server', () => {
@@ -201,12 +223,113 @@ describe('EmployeeListComponent', () => {
   it('shows an error when the employees cannot be loaded', () => {
     fixture.detectChanges();
     const employeeRequest = http.expectOne(isEmployeeRequest);
-    http.expectOne('/api/insights/filter-options').flush(OPTIONS);
+    http.expectOne(isFilterOptionsRequest).flush(OPTIONS);
 
     employeeRequest.flush('Something went wrong', { status: 500, statusText: 'Server Error' });
     fixture.detectChanges();
 
     const alert: HTMLElement = fixture.nativeElement.querySelector('[role="alert"]');
     expect(alert.textContent).toContain('Could not load employees');
+  });
+
+  describe('adding, editing and deleting', () => {
+    function reloadAfterChange(employees: Employee[] = [ASHA, LENA]): TestRequest {
+      http.expectOne(isFilterOptionsRequest).flush(OPTIONS);
+      const request = http.expectOne(isEmployeeRequest);
+      request.flush(pageOf(employees));
+      return request;
+    }
+
+    it('opens an empty form and refreshes the list after saving', () => {
+      start();
+      const open = dialogWillClose(ASHA);
+
+      click('button.add');
+
+      expect(open).toHaveBeenCalledWith(
+        EmployeeFormDialogComponent,
+        jasmine.objectContaining({ data: jasmine.objectContaining({ employee: null }) }),
+      );
+      reloadAfterChange();
+      expect(snackBar.open).toHaveBeenCalledWith('Employee added', 'Dismiss', jasmine.anything());
+    });
+
+    it('does not refresh the list when the form is cancelled', () => {
+      start();
+      dialogWillClose(undefined);
+
+      click('button.add');
+
+      http.expectNone(isEmployeeRequest);
+      expect(snackBar.open).not.toHaveBeenCalled();
+    });
+
+    it('opens the form with the chosen employee for editing', () => {
+      start();
+      const open = dialogWillClose(ASHA);
+
+      click('button[aria-label="Edit Asha Patel"]');
+
+      expect(open).toHaveBeenCalledWith(
+        EmployeeFormDialogComponent,
+        jasmine.objectContaining({ data: jasmine.objectContaining({ employee: ASHA }) }),
+      );
+      reloadAfterChange();
+      expect(snackBar.open).toHaveBeenCalledWith('Employee updated', 'Dismiss', jasmine.anything());
+    });
+
+    it('deletes an employee after confirmation', () => {
+      start();
+      const open = dialogWillClose(true);
+
+      click('button[aria-label="Delete Asha Patel"]');
+
+      expect(open).toHaveBeenCalledWith(
+        ConfirmDeleteDialogComponent,
+        jasmine.objectContaining({ data: ASHA }),
+      );
+      const deletion = http.expectOne('/api/employees/1');
+      expect(deletion.request.method).toBe('DELETE');
+      deletion.flush(null, { status: 204, statusText: 'No Content' });
+      reloadAfterChange([LENA]);
+      expect(snackBar.open).toHaveBeenCalledWith('Employee deleted', 'Dismiss', jasmine.anything());
+    });
+
+    it('keeps the employee when the deletion is not confirmed', () => {
+      start();
+      dialogWillClose(false);
+
+      click('button[aria-label="Delete Asha Patel"]');
+
+      http.expectNone('/api/employees/1');
+    });
+
+    it('goes back a page when the last employee on a page is deleted', () => {
+      start([ASHA], 26);
+      component.onPage({ pageIndex: 1, pageSize: 25, length: 26 });
+      http.expectOne(isEmployeeRequest).flush(pageOf([ASHA], 26));
+      fixture.detectChanges();
+      dialogWillClose(true);
+
+      click('button[aria-label="Delete Asha Patel"]');
+      http.expectOne('/api/employees/1').flush(null, { status: 204, statusText: 'No Content' });
+
+      http.expectOne(isFilterOptionsRequest).flush(OPTIONS);
+      const reload = http.expectOne(isEmployeeRequest);
+      expect(reload.request.params.get('page')).toBe('0');
+      reload.flush(pageOf([LENA], 25));
+    });
+
+    it('shows an error when the deletion fails', () => {
+      start();
+      dialogWillClose(true);
+
+      click('button[aria-label="Delete Asha Patel"]');
+      http.expectOne('/api/employees/1').flush('Oops', { status: 500, statusText: 'Server Error' });
+      fixture.detectChanges();
+
+      const alert: HTMLElement = fixture.nativeElement.querySelector('[role="alert"]');
+      expect(alert.textContent).toContain('Could not delete the employee');
+    });
   });
 });
