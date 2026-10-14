@@ -88,6 +88,13 @@ public class EmployeeController {
         Sort.Direction sortDirection = Sort.Direction.fromOptionalString(direction)
                 .orElseThrow(() -> new IllegalArgumentException("Direction must be asc or desc"));
 
-        return PageRequest.of(page, Math.min(size, MAX_PAGE_SIZE), Sort.by(sortDirection, sortBy));
+        // Ties are broken by name and then id, so rows with equal values always come back in the same order.
+        Sort sort = Sort.by(sortDirection, sortBy);
+        if (!sortBy.equals("fullName")) {
+            sort = sort.and(Sort.by(Sort.Direction.ASC, "fullName"));
+        }
+        sort = sort.and(Sort.by(Sort.Direction.ASC, "id"));
+
+        return PageRequest.of(page, Math.min(size, MAX_PAGE_SIZE), sort);
     }
 }
