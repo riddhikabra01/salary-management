@@ -63,11 +63,11 @@ describe('EmployeeListComponent', () => {
 
   afterEach(() => http.verify());
 
-  function start(employees: Employee[] = [ASHA, LENA]): TestRequest {
+  function start(employees: Employee[] = [ASHA, LENA], totalElements = employees.length): TestRequest {
     fixture.detectChanges();
     const employeeRequest = http.expectOne(isEmployeeRequest);
     http.expectOne('/api/insights/filter-options').flush(OPTIONS);
-    employeeRequest.flush(pageOf(employees));
+    employeeRequest.flush(pageOf(employees, totalElements));
     fixture.detectChanges();
     return employeeRequest;
   }
@@ -79,6 +79,18 @@ describe('EmployeeListComponent', () => {
     expect(rows.length).toBe(2);
     expect(fixture.nativeElement.textContent).toContain('Asha Patel');
     expect(fixture.nativeElement.textContent).toContain('Lena Fischer');
+  });
+
+  it('shows how many employees match', () => {
+    start([ASHA], 10000);
+
+    expect(fixture.nativeElement.textContent).toContain('10,000 employees');
+  });
+
+  it('uses the singular when exactly one employee matches', () => {
+    start([ASHA], 1);
+
+    expect(fixture.nativeElement.textContent).toMatch(/\b1 employee(?!s)/);
   });
 
   it('asks for the first page sorted by name by default', () => {

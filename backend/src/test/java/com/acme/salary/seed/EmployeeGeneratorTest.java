@@ -9,6 +9,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 
@@ -85,6 +86,41 @@ class EmployeeGeneratorTest {
 
         assertThat(employees).allSatisfy(employee ->
                 assertThat(employee.getJoiningDate()).isBetween(earliest, latest));
+    }
+
+    @Test
+    void givesEmployeesNamesThatFitTheirCountry() {
+        assertThat(countriesWhereName(name -> name.startsWith("Ananya "))).containsExactly("India");
+        assertThat(countriesWhereName(name -> name.endsWith(" Patel"))).containsExactly("India");
+        assertThat(countriesWhereName(name -> name.startsWith("Hiroshi "))).containsExactly("Japan");
+        assertThat(countriesWhereName(name -> name.endsWith(" Tanaka"))).containsExactly("Japan");
+        assertThat(countriesWhereName(name -> name.startsWith("Lukas "))).containsExactly("Germany");
+        assertThat(countriesWhereName(name -> name.endsWith(" Mueller"))).containsExactly("Germany");
+        assertThat(countriesWhereName(name -> name.endsWith(" Silva"))).containsExactly("Brazil");
+    }
+
+    @Test
+    void neverMixesJapaneseFirstNamesWithWesternSurnames() {
+        Set<String> japaneseSurnames = Set.of("Sato", "Suzuki", "Takahashi", "Tanaka", "Watanabe", "Ito",
+                "Yamamoto", "Nakamura", "Kobayashi", "Kato", "Yoshida", "Yamada", "Sasaki", "Matsumoto",
+                "Inoue", "Kimura");
+
+        assertThat(employees)
+                .filteredOn(employee -> employee.getCountry().equals("Japan"))
+                .allSatisfy(employee -> assertThat(japaneseSurnames)
+                        .contains(employee.getFullName().substring(employee.getFullName().lastIndexOf(' ') + 1)));
+    }
+
+    @Test
+    void writesEmailsWithoutSpaces() {
+        assertThat(employees).allSatisfy(employee -> assertThat(employee.getEmail()).doesNotContain(" "));
+    }
+
+    private Set<String> countriesWhereName(Predicate<String> matches) {
+        return employees.stream()
+                .filter(employee -> matches.test(employee.getFullName()))
+                .map(Employee::getCountry)
+                .collect(Collectors.toSet());
     }
 
     private List<BigDecimal> salariesOf(String jobTitle, String country) {
