@@ -7,10 +7,15 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * Turns raw database aggregates into the figures the Insights page shows.
+ * Everything is read-only.
+ */
 @Service
 @Transactional(readOnly = true)
 public class InsightsService {
 
+    // Upper limit on distribution bands, to keep the chart readable and the number of queries bounded.
     static final int MAX_BANDS = 20;
 
     private final InsightsRepository repository;
@@ -55,6 +60,8 @@ public class InsightsService {
                 repository.distinctJobTitles());
     }
 
+    // Splits min..max into equal-width ranges and counts the employees in each.
+    // If everyone earns the same, there is nothing to split, so we return a single band.
     private List<SalaryBand> splitIntoBands(CountrySalaryStats stats, int bands) {
         BigDecimal min = stats.minSalary();
         BigDecimal max = stats.maxSalary();
@@ -68,6 +75,7 @@ public class InsightsService {
         BigDecimal lower = min;
 
         for (int band = 1; band <= bands; band++) {
+            // The last band uses the exact max as its edge, avoiding rounding drift from the divisions.
             boolean isLast = band == bands;
             BigDecimal upper = isLast ? max : min.add(boundaryOffset(range, band, bands));
             long headcount = isLast
@@ -91,6 +99,7 @@ public class InsightsService {
                 money(row.getMinSalary()), money(row.getMaxSalary()), money(row.getAverageSalary()));
     }
 
+    // Averages can come back as doubles; round everything to 2 decimals the same way.
     private static BigDecimal money(Number value) {
         BigDecimal decimal = value instanceof BigDecimal exact
                 ? exact

@@ -245,3 +245,28 @@ mat-paginator {
     max-height: none;
   }
 }
+
+/* Secondary sort control inside the filter panel. The bottom margin on the toggle lines it up
+   with the form field, which reserves space for its hint text. */
+.secondary-sort {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.secondary-sort mat-form-field {
+  min-width: 220px;
+}
+
+.secondary-sort mat-button-toggle-group {
+  margin-bottom: 22px;
+}
+
+@media (max-width: 600px) {
+  .secondary-sort mat-form-field {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+}

@@ -9,6 +9,7 @@ import {
   SalaryDistribution,
 } from './insights.model';
 
+// Thin wrapper over the /api/insights endpoints. No logic, just requests.
 @Injectable({ providedIn: 'root' })
 export class InsightsService {
   private readonly http = inject(HttpClient);

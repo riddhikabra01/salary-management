@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class SpaController {
 
+    // One-segment paths with no dot (/employees, /insights) go to the Angular app.
+    // This is why refreshing a page works.
     @GetMapping("/{path:[^\\.]*}")
     public String forwardToApp() {
         return "forward:/index.html";

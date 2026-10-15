@@ -110,4 +110,24 @@ describe('EmployeeService', () => {
     call.flush(null, { status: 204, statusText: 'No Content' });
     expect(finished).toBeTrue();
   });
+
+  it('sends the secondary sort when one is chosen', () => {
+    service
+      .list({ ...noFilters, secondarySortBy: 'department', secondaryDirection: 'desc' })
+      .subscribe();
+
+    const call = http.expectOne((req) => req.url === '/api/employees');
+    expect(call.request.params.get('secondarySortBy')).toBe('department');
+    expect(call.request.params.get('secondaryDirection')).toBe('desc');
+    call.flush({ content: [], page: 0, size: 25, totalElements: 0, totalPages: 0 });
+  });
+
+  it('leaves out the secondary sort when none is chosen', () => {
+    service.list(noFilters).subscribe();
+
+    const call = http.expectOne((req) => req.url === '/api/employees');
+    expect(call.request.params.has('secondarySortBy')).toBeFalse();
+    expect(call.request.params.has('secondaryDirection')).toBeFalse();
+    call.flush({ content: [], page: 0, size: 25, totalElements: 0, totalPages: 0 });
+  });
 });

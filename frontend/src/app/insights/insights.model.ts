@@ -1,3 +1,4 @@
+// These types mirror the JSON from /api/insights. Salaries are always in the country's own currency.
 export interface FilterOptions {
   countries: string[];
   departments: string[];

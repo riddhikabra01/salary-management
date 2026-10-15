@@ -18,6 +18,7 @@ public class EmployeeGenerator {
 
     private static final LocalDate FIRST_JOINING_DATE = LocalDate.of(2012, 1, 1);
     private static final LocalDate LAST_JOINING_DATE = LocalDate.of(2026, 9, 30);
+    // Each person earns between 80% and 125% of the going rate for their job and country (0.80 + 0.45).
     private static final double LOWEST_PAY_SPREAD = 0.80;
     private static final double PAY_SPREAD_RANGE = 0.45;
 
@@ -99,6 +100,8 @@ public class EmployeeGenerator {
             List.of("Sato", "Suzuki", "Takahashi", "Tanaka", "Watanabe", "Ito", "Yamamoto", "Nakamura",
                     "Kobayashi", "Kato", "Yoshida", "Yamada", "Sasaki", "Matsumoto", "Inoue", "Kimura"));
 
+    // payFactor scales US-dollar base pay into local currency and local pay levels (roughly realistic,
+    // not exchange rates). weight controls how many employees each country gets (India 30 of 100, etc).
     private static final List<Country> COUNTRIES = List.of(
             new Country("India", "INR", 25.0, 30, List.of(INDIAN)),
             new Country("United States", "USD", 1.0, 20, List.of(AMERICAN)),
@@ -115,6 +118,7 @@ public class EmployeeGenerator {
     private static final int TOTAL_COUNTRY_WEIGHT =
             COUNTRIES.stream().mapToInt(Country::weight).sum();
 
+    // Base annual salary per job, expressed in US dollars before the country factor is applied.
     private static final List<Job> JOBS = List.of(
             new Job("Software Engineer", "Engineering", 95_000),
             new Job("Senior Software Engineer", "Engineering", 130_000),
@@ -137,6 +141,7 @@ public class EmployeeGenerator {
 
     private final Random random;
 
+    // A fixed seed means the same "random" employees every time, so demos and tests are repeatable.
     public EmployeeGenerator(long seed) {
         this.random = new Random(seed);
     }
@@ -167,6 +172,7 @@ public class EmployeeGenerator {
                 randomJoiningDate());
     }
 
+    // The running number guarantees uniqueness even when two people share a name.
     private String emailFor(String firstName, String lastName, int sequence) {
         String address = firstName + "." + lastName + "." + sequence + "@acme.com";
         return address.toLowerCase().replaceAll("\\s+", "");
@@ -184,6 +190,7 @@ public class EmployeeGenerator {
         return FIRST_JOINING_DATE.plusDays(random.nextInt((int) daysAvailable));
     }
 
+    // Weighted random pick: roll a number and walk through the countries until the running total passes it.
     private Country pickCountry() {
         int roll = random.nextInt(TOTAL_COUNTRY_WEIGHT);
         int cumulative = 0;

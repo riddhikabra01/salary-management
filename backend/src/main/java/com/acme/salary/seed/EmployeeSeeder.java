@@ -10,10 +10,15 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
+/**
+ * Bulk-loads sample employees. It uses plain JDBC batch inserts rather than JPA save() because
+ * inserting 10,000 entities one by one would be much slower.
+ */
 @Component
 public class EmployeeSeeder {
 
     private static final int BATCH_SIZE = 1000;
+    // Fixed so every environment gets identical sample data.
     private static final long RANDOM_SEED = 2026L;
     private static final String INSERT_EMPLOYEE = """
             insert into employees
@@ -43,6 +48,7 @@ public class EmployeeSeeder {
         }
 
         List<Employee> employees = new EmployeeGenerator(RANDOM_SEED).generate(count);
+        // One transaction: either all employees go in, or none do.
         transaction.executeWithoutResult(status ->
                 jdbcTemplate.batchUpdate(INSERT_EMPLOYEE, employees, BATCH_SIZE, EmployeeSeeder::bind));
         return employees.size();

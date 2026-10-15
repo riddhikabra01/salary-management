@@ -3,6 +3,8 @@ package com.acme.salary.employee;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+// What the API sends back. A separate class from the entity so the database model can change
+// without breaking the API, and so nothing internal leaks out by accident.
 public record EmployeeResponse(
         Long id,
         String fullName,

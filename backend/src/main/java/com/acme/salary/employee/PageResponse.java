@@ -3,6 +3,7 @@ package com.acme.salary.employee;
 import java.util.List;
 import org.springframework.data.domain.Page;
 
+// A small, stable JSON shape for one page of results, instead of exposing Spring's own Page structure.
 public record PageResponse<T>(List<T> content, int page, int size, long totalElements, int totalPages) {
 
     public static <T> PageResponse<T> from(Page<T> page) {

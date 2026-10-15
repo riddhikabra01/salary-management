@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+// Maps "no data for that country / job title" to a 404 with a readable message.
 @RestControllerAdvice
 public class InsightsExceptionHandler {
 

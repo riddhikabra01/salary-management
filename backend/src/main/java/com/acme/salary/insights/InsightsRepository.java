@@ -8,6 +8,11 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
 
+/**
+ * Aggregate queries for insights. The database does the counting and averaging, so we never load
+ * 10,000 employees into memory just to compute a number.
+ * Statistics are grouped per country because salaries in different currencies can't be mixed.
+ */
 public interface InsightsRepository extends Repository<Employee, Long> {
 
     @Query("""
@@ -40,6 +45,8 @@ public interface InsightsRepository extends Repository<Employee, Long> {
     Optional<JobTitleStatsRow> jobTitleStatsInCountry(@Param("country") String country,
                                                       @Param("jobTitle") String jobTitle);
 
+    // Two counting variants because a band is "from (inclusive) to (exclusive)", except the last band,
+    // which includes its upper end so the highest earner is counted.
     long countByCountryAndSalaryGreaterThanEqualAndSalaryLessThan(
             String country, BigDecimal from, BigDecimal to);
 

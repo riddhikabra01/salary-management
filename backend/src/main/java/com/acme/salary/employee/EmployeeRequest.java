@@ -8,6 +8,11 @@ import jakarta.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+/**
+ * The JSON body for creating or editing an employee, with first-line validation.
+ * These annotations catch the common mistakes and return friendly per-field messages;
+ * the Employee entity then enforces the same rules again as a last line of defence.
+ */
 public record EmployeeRequest(
         @NotBlank(message = "Full name is required") String fullName,
         @NotBlank(message = "Email is required") @Email(message = "Email must be valid") String email,

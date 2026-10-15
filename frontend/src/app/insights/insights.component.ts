@@ -13,9 +13,15 @@ import {
 } from './insights.model';
 import { InsightsService } from './insights.service';
 
+// How many salary ranges the distribution chart starts with.
 const DEFAULT_BANDS = 5;
+// A tiny but non-zero count would otherwise draw an invisible bar; this keeps it visible.
 const MIN_BAR_WIDTH_PERCENT = 2;
 
+/**
+ * The Insights page: a table of every country, plus details for the selected country
+ * (min / average / max, a salary distribution, and the average for a chosen job title).
+ */
 @Component({
   selector: 'app-insights',
   standalone: true,
@@ -44,6 +50,7 @@ export class InsightsComponent implements OnInit {
     () => this.countries().find((stats) => stats.country === this.selectedCountry()) ?? null,
   );
 
+  // The biggest band sets the 100% bar width; every other bar is drawn relative to it.
   private readonly largestBand = computed(() => {
     const headcounts = this.distribution()?.bands.map((band) => band.headcount) ?? [];
     return Math.max(1, ...headcounts);
@@ -75,6 +82,7 @@ export class InsightsComponent implements OnInit {
       .subscribe({ next: (options) => this.jobTitles.set(options.jobTitles), error: () => undefined });
   }
 
+  // Switching country clears the old chart right away, so stale numbers are never shown under a new name.
   selectCountry(country: string): void {
     this.selectedCountry.set(country);
     this.distribution.set(null);
@@ -113,6 +121,7 @@ export class InsightsComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (distribution) => {
+          // Ignore a slow response if the user has already picked something else.
           if (this.selectedCountry() === country && this.bands() === bands) {
             this.distribution.set(distribution);
           }
@@ -144,6 +153,7 @@ export class InsightsComponent implements OnInit {
             return;
           }
           this.jobTitleMessage.set(
+            // 404 here is not a failure, just "nobody has that job title in this country".
             error.status === 404
               ? `No ${jobTitle} employees found in ${country}.`
               : 'Could not load the average salary. Please try again.',

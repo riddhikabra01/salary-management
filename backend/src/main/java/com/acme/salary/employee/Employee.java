@@ -10,7 +10,14 @@ import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+/**
+ * One person on the payroll, stored in the "employees" table.
+ * The entity protects its own rules: fields can only be set through updateDetails(), which rejects
+ * blank text, a malformed email or a non-positive salary, so an invalid employee can't be created
+ * by any route (API, seeder or tests).
+ */
 @Entity
+// Indexes on the three columns used by filter dropdowns and insights, so those lookups stay fast.
 @Table(name = "employees", indexes = {
         @Index(name = "idx_employee_country", columnList = "country"),
         @Index(name = "idx_employee_department", columnList = "department"),
@@ -25,6 +32,7 @@ public class Employee {
     @Column(nullable = false)
     private String fullName;
 
+    // Unique at the database level too, as a safety net for two requests racing with the same email.
     @Column(nullable = false, unique = true)
     private String email;
 
@@ -37,9 +45,11 @@ public class Employee {
     @Column(nullable = false)
     private String country;
 
+    // BigDecimal, never double: money must not pick up floating-point rounding errors.
     @Column(nullable = false, precision = 14, scale = 2)
     private BigDecimal salary;
 
+    // ISO 4217 code such as INR or USD. Each salary is kept in its own currency, not converted.
     @Column(nullable = false, length = 3)
     private String currency;
 
@@ -55,6 +65,7 @@ public class Employee {
         updateDetails(fullName, email, jobTitle, department, country, salary, currency, joiningDate);
     }
 
+    // Used for both creating and editing. Marked final because the constructor calls it.
     public final void updateDetails(String fullName, String email, String jobTitle,
                                     String department, String country, BigDecimal salary,
                                     String currency, LocalDate joiningDate) {
@@ -75,6 +86,7 @@ public class Employee {
         return value.trim();
     }
 
+    // A deliberately simple shape check (something@something.tld). Full RFC validation is overkill here.
     private static String requireEmail(String value) {
         String email = requireText(value, "A valid email is required");
         if (!email.matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")) {

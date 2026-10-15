@@ -4,6 +4,10 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 
 import { Employee } from '../employee.model';
 
+/**
+ * A small "are you sure?" popup. Closes with true to delete or false to cancel, and the list screen
+ * decides what to do next. Deleting is permanent, so the wording says so.
+ */
 @Component({
   selector: 'app-confirm-delete-dialog',
   standalone: true,

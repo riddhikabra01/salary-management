@@ -17,18 +17,26 @@ import { FilterOptions } from '../../insights/insights.model';
 import { Employee, EmployeeRequest } from '../employee.model';
 import { EmployeeService } from '../employee.service';
 
+// What the list screen hands the dialog: the employee to edit (null means "add new")
+// and the known countries / departments / titles.
 export interface EmployeeFormData {
   employee: Employee | null;
   options: FilterOptions;
 }
 
+// Exactly three letters, e.g. USD. The value is upper-cased before sending.
 const CURRENCY_PATTERN = /^[A-Za-z]{3}$/;
 
+// Angular's built-in "required" accepts a string of spaces. This one doesn't.
 function notBlank(control: AbstractControl): ValidationErrors | null {
   const value = control.value;
   return typeof value === 'string' && value.trim() !== '' ? null : { required: true };
 }
 
+/**
+ * One form for both adding and editing an employee. Checks inputs in the browser first for instant feedback,
+ * then shows any message the server sends back (for example, "email already in use").
+ */
 @Component({
   selector: 'app-employee-form-dialog',
   standalone: true,
@@ -68,6 +76,7 @@ export class EmployeeFormDialogComponent {
   readonly saving = signal(false);
   readonly errorMessage = signal<string | null>(null);
 
+  // Save button. Stops early and highlights problems if the form is invalid; otherwise creates or updates.
   submit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -92,6 +101,7 @@ export class EmployeeFormDialogComponent {
     this.dialogRef.close();
   }
 
+  // Picks the one message to show under a field. Server messages win over the built-in checks.
   errorFor(control: AbstractControl): string {
     const errors = control.errors;
     if (!errors) {
@@ -118,6 +128,7 @@ export class EmployeeFormDialogComponent {
     return 'Invalid value';
   }
 
+  // Cleans the form values before sending: trims text, makes salary a number, upper-cases the currency.
   private toRequest(): EmployeeRequest {
     const value = this.form.getRawValue();
     return {
@@ -135,6 +146,7 @@ export class EmployeeFormDialogComponent {
   private showError(error: HttpErrorResponse): void {
     this.saving.set(false);
 
+    // 409 = email taken. 400 = the server rejected specific fields. 404 = someone else deleted this employee.
     if (error.status === 409) {
       this.markControlError('email', { taken: true });
       return;
@@ -156,6 +168,7 @@ export class EmployeeFormDialogComponent {
     this.errorMessage.set('Could not save the employee. Please try again.');
   }
 
+  // Attaches a server-side problem to the matching input so it shows up next to the field.
   private markControlError(field: string, errors: ValidationErrors): void {
     const control = this.form.get(field);
     if (control) {

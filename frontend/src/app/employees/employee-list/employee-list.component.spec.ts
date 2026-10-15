@@ -305,6 +305,94 @@ describe('EmployeeListComponent', () => {
     expect(fixture.nativeElement.querySelector('button.reset-sort')).toBeNull();
   });
 
+  it('sends no secondary sort by default', () => {
+    const request = start();
+
+    expect(request.request.params.has('secondarySortBy')).toBeFalse();
+    expect(request.request.params.has('secondaryDirection')).toBeFalse();
+  });
+
+  it('offers every column except the main sort column as a secondary sort', () => {
+    start();
+
+    const values = component.secondaryOptions().map((option) => option.value);
+    expect(values).not.toContain('fullName');
+    expect(values).toContain('department');
+  });
+
+  it('sends the chosen secondary sort', () => {
+    start();
+
+    component.onSecondarySort('department');
+
+    const request = http.expectOne(isEmployeeRequest);
+    expect(request.request.params.get('secondarySortBy')).toBe('department');
+    expect(request.request.params.get('secondaryDirection')).toBe('asc');
+    expect(request.request.params.get('page')).toBe('0');
+    request.flush(pageOf([ASHA, LENA]));
+  });
+
+  it('sends the secondary direction the user picks', () => {
+    start();
+    component.onSecondarySort('salary');
+    http.expectOne(isEmployeeRequest).flush(pageOf([ASHA, LENA]));
+
+    component.onSecondaryDirection('desc');
+
+    const request = http.expectOne(isEmployeeRequest);
+    expect(request.request.params.get('secondarySortBy')).toBe('salary');
+    expect(request.request.params.get('secondaryDirection')).toBe('desc');
+    request.flush(pageOf([ASHA, LENA]));
+  });
+
+  it('drops the secondary sort when that column becomes the main sort', () => {
+    start();
+    component.onSecondarySort('department');
+    http.expectOne(isEmployeeRequest).flush(pageOf([ASHA, LENA]));
+
+    component.onSort({ active: 'department', direction: 'asc' });
+
+    const request = http.expectOne(isEmployeeRequest);
+    expect(request.request.params.get('sortBy')).toBe('department');
+    expect(request.request.params.has('secondarySortBy')).toBeFalse();
+    request.flush(pageOf([ASHA, LENA]));
+  });
+
+  it('describes the secondary sort in the summary', () => {
+    start();
+    component.onSort({ active: 'country', direction: 'asc' });
+    http.expectOne(isEmployeeRequest).flush(pageOf([ASHA, LENA]));
+    component.onSecondarySort('department');
+    http.expectOne(isEmployeeRequest).flush(pageOf([ASHA, LENA]));
+    component.onSecondaryDirection('desc');
+    http.expectOne(isEmployeeRequest).flush(pageOf([ASHA, LENA]));
+    fixture.detectChanges();
+
+    const summary: HTMLElement = fixture.nativeElement.querySelector('.sort-summary');
+    expect(summary.textContent).toContain('Country (A–Z), then Department (Z–A), then Name (A–Z)');
+  });
+
+  it('uses wording that suits each column', () => {
+    expect(component.directionLabel('department', 'asc')).toBe('A–Z');
+    expect(component.directionLabel('department', 'desc')).toBe('Z–A');
+    expect(component.directionLabel('salary', 'asc')).toBe('Low to high');
+    expect(component.directionLabel('salary', 'desc')).toBe('High to low');
+    expect(component.directionLabel('joiningDate', 'asc')).toBe('Oldest first');
+    expect(component.directionLabel('joiningDate', 'desc')).toBe('Newest first');
+  });
+
+  it('clears the secondary sort when the sort is reset', () => {
+    start();
+    component.onSecondarySort('department');
+    http.expectOne(isEmployeeRequest).flush(pageOf([ASHA, LENA]));
+
+    component.resetSort();
+
+    const request = http.expectOne(isEmployeeRequest);
+    expect(request.request.params.has('secondarySortBy')).toBeFalse();
+    request.flush(pageOf([ASHA, LENA]));
+  });
+
   describe('adding, editing and deleting', () => {
     function reloadAfterChange(employees: Employee[] = [ASHA, LENA]): TestRequest {
       http.expectOne(isFilterOptionsRequest).flush(OPTIONS);

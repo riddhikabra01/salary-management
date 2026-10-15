@@ -129,6 +129,69 @@ class EmployeeListControllerTest {
         assertThat(sortOrder()).containsExactly("fullName: DESC", "id: ASC");
     }
 
+    @Test
+    void addsTheRequestedSecondarySort() throws Exception {
+        returnAnEmptyPage();
+
+        mockMvc.perform(get("/api/employees")
+                        .param("sortBy", "country")
+                        .param("secondarySortBy", "department")
+                        .param("secondaryDirection", "desc"))
+                .andExpect(status().isOk());
+
+        assertThat(sortOrder()).containsExactly("country: ASC", "department: DESC", "fullName: ASC", "id: ASC");
+    }
+
+    @Test
+    void doesNotRepeatTheNameWhenItIsTheSecondarySort() throws Exception {
+        returnAnEmptyPage();
+
+        mockMvc.perform(get("/api/employees")
+                        .param("sortBy", "country")
+                        .param("secondarySortBy", "fullName")
+                        .param("secondaryDirection", "desc"))
+                .andExpect(status().isOk());
+
+        assertThat(sortOrder()).containsExactly("country: ASC", "fullName: DESC", "id: ASC");
+    }
+
+    @Test
+    void ignoresASecondarySortThatMatchesTheMainSort() throws Exception {
+        returnAnEmptyPage();
+
+        mockMvc.perform(get("/api/employees")
+                        .param("sortBy", "salary")
+                        .param("direction", "desc")
+                        .param("secondarySortBy", "salary"))
+                .andExpect(status().isOk());
+
+        assertThat(sortOrder()).containsExactly("salary: DESC", "fullName: ASC", "id: ASC");
+    }
+
+    @Test
+    void ignoresABlankSecondarySort() throws Exception {
+        returnAnEmptyPage();
+
+        mockMvc.perform(get("/api/employees").param("sortBy", "salary").param("secondarySortBy", ""))
+                .andExpect(status().isOk());
+
+        assertThat(sortOrder()).containsExactly("salary: ASC", "fullName: ASC", "id: ASC");
+    }
+
+    @Test
+    void rejectsAnUnknownSecondarySortField() throws Exception {
+        mockMvc.perform(get("/api/employees").param("secondarySortBy", "password"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void rejectsAnInvalidSecondarySortDirection() throws Exception {
+        mockMvc.perform(get("/api/employees")
+                        .param("secondarySortBy", "department")
+                        .param("secondaryDirection", "sideways"))
+                .andExpect(status().isBadRequest());
+    }
+
     private void returnAnEmptyPage() {
         when(service.search(any(EmployeeFilter.class), any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(), PageRequest.of(0, 20), 0));

@@ -7,6 +7,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * Read-only endpoints behind the Insights page: salary statistics per country, a salary
+ * distribution, the average for a job title, and the dropdown options.
+ */
 @RestController
 @RequestMapping("/api/insights")
 public class InsightsController {
@@ -27,6 +31,7 @@ public class InsightsController {
         return service.salaryStatsForCountry(country);
     }
 
+    // "bands" = how many equal-width salary ranges to split the country into (default 5).
     @GetMapping("/countries/{country}/distribution")
     public SalaryDistribution distribution(@PathVariable String country,
                                            @RequestParam(defaultValue = "5") int bands) {
