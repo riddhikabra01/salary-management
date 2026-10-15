@@ -1,0 +1,149 @@
+<section>
+  <header class="page-header">
+    <div>
+      <h1>Salary insights</h1>
+      <p class="subtitle">
+        How the organisation pays its people. Salaries are shown in each country's own currency.
+      </p>
+    </div>
+  </header>
+
+  @if (loading()) {
+    <mat-progress-bar mode="indeterminate" />
+  }
+
+  @if (errorMessage(); as message) {
+    <p class="error" role="alert">{{ message }}</p>
+  }
+
+  <div class="card">
+    <h2>Countries at a glance</h2>
+    <div class="table-wrapper">
+      <table class="overview">
+        <thead>
+          <tr>
+            <th>Country</th>
+            <th class="numeric">Employees</th>
+            <th class="numeric">Minimum</th>
+            <th class="numeric">Average</th>
+            <th class="numeric">Maximum</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of countries(); track row.country) {
+            <tr
+              tabindex="0"
+              [class.selected]="row.country === selectedCountry()"
+              (click)="selectCountry(row.country)"
+              (keydown.enter)="selectCountry(row.country)"
+            >
+              <td class="name">{{ row.country }}</td>
+              <td class="numeric">{{ row.headcount | number }}</td>
+              <td class="numeric">{{ row.minSalary | currency: row.currency : 'symbol-narrow' : '1.0-0' }}</td>
+              <td class="numeric">{{ row.averageSalary | currency: row.currency : 'symbol-narrow' : '1.0-0' }}</td>
+              <td class="numeric">{{ row.maxSalary | currency: row.currency : 'symbol-narrow' : '1.0-0' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <p class="hint">Select a country to see its details below.</p>
+  </div>
+
+  @if (selectedStats(); as stats) {
+    <div class="card">
+      <div class="card-header">
+        <h2>{{ stats.country }}</h2>
+        <mat-form-field appearance="outline" class="compact">
+          <mat-label>Country</mat-label>
+          <mat-select [value]="selectedCountry()" (selectionChange)="selectCountry($event.value)">
+            @for (row of countries(); track row.country) {
+              <mat-option [value]="row.country">{{ row.country }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat">
+          <span class="label">Minimum salary</span>
+          <span class="value">{{ stats.minSalary | currency: stats.currency : 'symbol-narrow' : '1.0-0' }}</span>
+        </div>
+        <div class="stat">
+          <span class="label">Average salary</span>
+          <span class="value">{{ stats.averageSalary | currency: stats.currency : 'symbol-narrow' : '1.0-0' }}</span>
+        </div>
+        <div class="stat">
+          <span class="label">Maximum salary</span>
+          <span class="value">{{ stats.maxSalary | currency: stats.currency : 'symbol-narrow' : '1.0-0' }}</span>
+        </div>
+        <div class="stat">
+          <span class="label">Employees</span>
+          <span class="value">{{ stats.headcount | number }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <h2>Salary distribution</h2>
+          <p class="hint">How many employees fall into each salary band. Averages can hide a wide spread.</p>
+        </div>
+        <mat-form-field appearance="outline" class="compact">
+          <mat-label>Bands</mat-label>
+          <mat-select [value]="bands()" (selectionChange)="changeBands($event.value)">
+            @for (option of bandOptions; track option) {
+              <mat-option [value]="option">{{ option }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      @if (distribution(); as dist) {
+        <ul class="bars" aria-label="Salary distribution">
+          @for (band of dist.bands; track $index) {
+            <li class="bar-row">
+              <span class="bar-label">
+                {{ band.from | currency: dist.currency : 'symbol-narrow' : '1.0-0' }} –
+                {{ band.to | currency: dist.currency : 'symbol-narrow' : '1.0-0' }}
+              </span>
+              <span class="bar-track">
+                <span class="bar" [style.width.%]="barWidth(band.headcount)"></span>
+              </span>
+              <span class="bar-count">{{ band.headcount | number }}</span>
+            </li>
+          }
+        </ul>
+      } @else {
+        <p class="hint">Loading the distribution…</p>
+      }
+    </div>
+
+    <div class="card">
+      <h2>Average salary for a job title</h2>
+      <p class="hint">Pick a job title to see what it pays in {{ stats.country }}.</p>
+
+      <mat-form-field appearance="outline" class="compact">
+        <mat-label>Job title</mat-label>
+        <mat-select [value]="selectedJobTitle()" (selectionChange)="selectJobTitle($event.value)">
+          @for (title of jobTitles(); track title) {
+            <mat-option [value]="title">{{ title }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      @if (jobTitleResult(); as result) {
+        <p class="result" role="status">
+          <strong>{{ result.jobTitle }}</strong> in {{ result.country }} earn on average
+          <strong>{{ result.averageSalary | currency: result.currency : 'symbol-narrow' : '1.0-0' }}</strong>
+          ({{ result.headcount | number }} {{ result.headcount === 1 ? 'employee' : 'employees' }}).
+        </p>
+      }
+
+      @if (jobTitleMessage(); as message) {
+        <p class="hint" role="status">{{ message }}</p>
+      }
+    </div>
+  }
+</section>

@@ -9,4 +9,9 @@ export const routes: Routes = [
         (module) => module.EmployeeListComponent,
       ),
   },
+  {
+    path: 'insights',
+    loadComponent: () =>
+      import('./insights/insights.component').then((module) => module.InsightsComponent),
+  },
 ];
