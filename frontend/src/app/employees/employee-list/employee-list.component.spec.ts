@@ -392,6 +392,13 @@ describe('EmployeeListComponent', () => {
     expect(active.length).toBe(1);
   });
 
+  it('describes the current sort in the header tooltip', () => {
+    start();
+
+    expect(component.sortHint('fullName')).toBe('Sorted A–Z. Click to reverse.');
+    expect(component.sortHint('salary')).toBe('Click to sort by this column');
+  });
+
   it('uses wording that suits each column', () => {
     expect(component.directionLabel('department', 'asc')).toBe('A–Z');
     expect(component.directionLabel('department', 'desc')).toBe('Z–A');

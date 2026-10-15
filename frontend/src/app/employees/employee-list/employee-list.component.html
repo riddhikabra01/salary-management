@@ -93,7 +93,7 @@
     }
 
     <div class="table-wrapper">
-      <!-- Clicking a header label sets the PRIMARY sort (the arrow). The small filter icon beside it opens a menu
+      <!-- Clicking a header label sets the PRIMARY sort (click again to reverse). The small filter icon beside it opens a menu
            for the SECONDARY sort ("then sort by this column"). -->
       <table
         mat-table
@@ -107,7 +107,7 @@
         <ng-container matColumnDef="fullName">
           <th mat-header-cell *matHeaderCellDef>
             <div class="head-cell">
-              <span mat-sort-header="fullName">Name</span>
+              <span mat-sort-header="fullName" [title]="sortHint('fullName')">Name</span>
               <button
                 type="button"
                 class="col-filter"
@@ -132,7 +132,7 @@
         <ng-container matColumnDef="email">
           <th mat-header-cell *matHeaderCellDef>
             <div class="head-cell">
-              <span mat-sort-header="email">Email</span>
+              <span mat-sort-header="email" [title]="sortHint('email')">Email</span>
               <button
                 type="button"
                 class="col-filter"
@@ -157,7 +157,7 @@
         <ng-container matColumnDef="jobTitle">
           <th mat-header-cell *matHeaderCellDef>
             <div class="head-cell">
-              <span mat-sort-header="jobTitle">Job title</span>
+              <span mat-sort-header="jobTitle" [title]="sortHint('jobTitle')">Job title</span>
               <button
                 type="button"
                 class="col-filter"
@@ -182,7 +182,7 @@
         <ng-container matColumnDef="department">
           <th mat-header-cell *matHeaderCellDef>
             <div class="head-cell">
-              <span mat-sort-header="department">Department</span>
+              <span mat-sort-header="department" [title]="sortHint('department')">Department</span>
               <button
                 type="button"
                 class="col-filter"
@@ -209,7 +209,7 @@
         <ng-container matColumnDef="country">
           <th mat-header-cell *matHeaderCellDef>
             <div class="head-cell">
-              <span mat-sort-header="country">Country</span>
+              <span mat-sort-header="country" [title]="sortHint('country')">Country</span>
               <button
                 type="button"
                 class="col-filter"
@@ -234,7 +234,7 @@
         <ng-container matColumnDef="salary">
           <th mat-header-cell *matHeaderCellDef class="numeric">
             <div class="head-cell">
-              <span mat-sort-header="salary">Salary</span>
+              <span mat-sort-header="salary" [title]="sortHint('salary')">Salary</span>
               <button
                 type="button"
                 class="col-filter"
@@ -261,7 +261,7 @@
         <ng-container matColumnDef="joiningDate">
           <th mat-header-cell *matHeaderCellDef>
             <div class="head-cell">
-              <span mat-sort-header="joiningDate">Joined</span>
+              <span mat-sort-header="joiningDate" [title]="sortHint('joiningDate')">Joined</span>
               <button
                 type="button"
                 class="col-filter"

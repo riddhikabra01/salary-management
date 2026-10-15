@@ -235,6 +235,14 @@ export class EmployeeListComponent implements OnInit {
     return COLUMN_LABELS[column] ?? column;
   }
 
+  // Tooltip for a sortable header label. With the arrows gone, this is how you can read the direction.
+  sortHint(column: string): string {
+    if (column === this.sortBy) {
+      return `Sorted ${this.directionLabel(column, this.direction)}. Click to reverse.`;
+    }
+    return 'Click to sort by this column';
+  }
+
   // Tooltip for a column's filter icon.
   filterTitle(column: string): string {
     if (column === this.sortBy) {

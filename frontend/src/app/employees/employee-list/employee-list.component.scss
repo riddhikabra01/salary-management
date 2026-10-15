@@ -236,6 +236,16 @@ mat-paginator {
   gap: 4px;
 }
 
+/* No sort arrows: they cluttered the header next to the filter icon. The column being sorted is shown
+   with a blue label instead, and its tooltip says the direction. */
+.head-cell ::ng-deep .mat-sort-header-arrow {
+  display: none;
+}
+
+.head-cell .mat-sort-header-sorted {
+  color: #1f3f8f;
+}
+
 .numeric .head-cell {
   justify-content: flex-end;
 }

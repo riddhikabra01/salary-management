@@ -81,6 +81,21 @@ class EmployeeServiceTest {
     }
 
     @Test
+    void movesAnEmployeeToAnotherDepartment() {
+        Employee asha = anEmployee();
+        when(repository.findById(1L)).thenReturn(Optional.of(asha));
+        when(repository.existsByEmailIgnoreCaseAndIdNot("asha.patel@acme.com", 1L)).thenReturn(false);
+
+        Employee moved = service.update(1L, new EmployeeDetails(
+                "Asha Patel", "asha.patel@acme.com", "Recruiter", "Human Resources",
+                "India", new BigDecimal("1800000"), "INR", LocalDate.of(2022, 4, 1)));
+
+        // The previous department is simply overwritten; there is no transfer history.
+        assertThat(moved.getDepartment()).isEqualTo("Human Resources");
+        assertThat(moved.getJobTitle()).isEqualTo("Recruiter");
+    }
+
+    @Test
     void refusesToUpdateToAnEmailUsedByAnotherEmployee() {
         when(repository.findById(1L)).thenReturn(Optional.of(anEmployee()));
         when(repository.existsByEmailIgnoreCaseAndIdNot("taken@acme.com", 1L)).thenReturn(true);

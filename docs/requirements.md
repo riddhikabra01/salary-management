@@ -24,7 +24,7 @@ Give ACME's HR Manager a web application to manage salary data for roughly 10,00
 ## Assumptions
 - Single HR Manager, no login.
 - Salaries are stored in local currency. Insights are reported per country, so no conversion is needed. Cross-country comparison is not built; if added later, fixed documented exchange rates would be used.
-- Department is part of the data model, so it is available as a filter. Insights are not grouped by department because the required insights are by country and job title.
+- Department is part of the data model, so it is available as a filter. It can be changed when editing an employee (for example, a move from Engineering to Human Resources). The change overwrites the old value; the app does not keep a history of moves, and it does not check that the job title still fits the new department. The user can update both in the same form. Insights are not grouped by department because the required insights are by country and job title.
 - One currency per country in the data.
 - Job titles are matched as exact text, so "Software Engineer" and "software engineer" are treated the same after trimming and case normalisation.
 
@@ -33,6 +33,7 @@ Give ACME's HR Manager a web application to manage salary data for roughly 10,00
 |---|---|
 | Login and role-based access | Single persona. See "Future work". |
 | Salary history | Not required. See "Future work". |
+| Department transfer history | Edits overwrite the old department. See "Future work". |
 | Currency conversion | Insights are per country. |
 | Payroll, tax and deductions | This is a records and insights tool, not payroll. |
 | Approval workflows | Not needed for one user. |
@@ -40,6 +41,7 @@ Give ACME's HR Manager a web application to manage salary data for roughly 10,00
 
 ## Future work
 - **Authentication and roles**: add Spring Security with token-based login and two roles (HR Manager with full access, read-only viewer). Endpoints would be protected by role, and the Angular app would add a login page and route guards.
+- **Department and job history**: record transfers (employee id, department, job title, effective date) in the same kind of history table, so an employee's moves can be seen over time.
 - **Salary history**: add a `salary_history` table (employee id, salary, currency, effective date) and write a row whenever the salary changes. The current salary stays on the employee record for fast reads, and the history is shown on the employee detail page.
 
 ## Non-functional goals

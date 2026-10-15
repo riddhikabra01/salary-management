@@ -3,7 +3,7 @@
 A web app for an HR manager to manage salary data for about 10,000 employees across several
 countries, and to see how the organisation pays its people.
 
-**Live demo:** https://YOUR-URL.onrender.com
+**Live demo:** _add your Render URL here_
 (Render's free tier sleeps after about 15 minutes idle, so the first visit can take up to a minute.)
 
 ## What it does
@@ -78,6 +78,8 @@ Open http://localhost:8080. Spring Boot serves both the API and the built Angula
 - **Demo data resets on Render.** The free tier has no persistent disk, so an in-memory database is used and
   the 10,000 employees are re-seeded on each start. Production would use managed Postgres.
 - **Per-country insights only.** No cross-country comparison, because that needs exchange rates.
+- **Department changes overwrite.** Moving someone (say, Engineering to Human Resources) is a normal edit,
+  but the old department isn't kept, and job title and department aren't cross-checked.
 - **Simple email check.** Shape only (`name@domain.tld`); no deliverability check.
 
 ## Ideas for next steps
