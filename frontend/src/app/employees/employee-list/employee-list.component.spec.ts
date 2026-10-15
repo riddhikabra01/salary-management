@@ -258,15 +258,15 @@ describe('EmployeeListComponent', () => {
 
   it('hides and shows the dropdown filters', () => {
     start();
-    expect(fixture.nativeElement.querySelectorAll('mat-select').length).toBe(3);
+    expect(fixture.nativeElement.querySelectorAll('.filters-fields mat-select').length).toBe(3);
 
     click('.filters-toggle');
     fixture.detectChanges();
-    expect(fixture.nativeElement.querySelectorAll('mat-select').length).toBe(0);
+    expect(fixture.nativeElement.querySelectorAll('.filters-fields mat-select').length).toBe(0);
 
     click('.filters-toggle');
     fixture.detectChanges();
-    expect(fixture.nativeElement.querySelectorAll('mat-select').length).toBe(3);
+    expect(fixture.nativeElement.querySelectorAll('.filters-fields mat-select').length).toBe(3);
   });
 
   it('describes the default sort and offers no reset', () => {
@@ -370,11 +370,12 @@ describe('EmployeeListComponent', () => {
 
     it('keeps the employee when the deletion is not confirmed', () => {
       start();
-      dialogWillClose(false);
+      const open = dialogWillClose(false);
 
       click('button[aria-label="Delete Asha Patel"]');
 
       http.expectNone('/api/employees/1');
+      expect(open).toHaveBeenCalledTimes(1);
     });
 
     it('goes back a page when the last employee on a page is deleted', () => {
