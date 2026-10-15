@@ -23,7 +23,13 @@ describe('AppComponent', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
 
-    const link = fixture.nativeElement.querySelector('a[href="/employees"]');
-    expect(link).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('a[href="/employees"]')).not.toBeNull();
+  });
+
+  it('links to the insights page', () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('a[href="/insights"]')).not.toBeNull();
   });
 });
