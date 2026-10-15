@@ -3,13 +3,14 @@
 A web app for an HR manager to manage salary data for about 10,000 employees across several
 countries, and to see how the organisation pays its people.
 
-**Live demo:** https://YOUR-APP.onrender.com
+**Live demo:** _add your Render URL here_
 (Render's free tier sleeps after about 15 minutes idle, so the first visit can take up to a minute.)
 
 ## What it does
 - **Employees:** add, edit and delete people. Search by name or email, filter by country,
-  department and job title, and sort by any column. A second sort level ("then sort by") sits inside
-  the Filters panel, for example country A–Z, then salary high to low.
+  department and job title, and sort by any column. Every column header also has a small filter icon
+  that opens a menu for a second sort level, worded to suit the column (A–Z / Z–A, low to high,
+  oldest first), for example country A–Z, then salary high to low.
 - **Insights:** minimum, average and maximum salary per country, a salary distribution, and the
   average salary for a job title within a country.
 - Paging, filtering, sorting and statistics all run in the database, so the app stays responsive with 10,000 rows.

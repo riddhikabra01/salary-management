@@ -2,3 +2,16 @@
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+/* The "then sort by" menu opens in an overlay, so its styles live here rather than in the component. */
+.sort-menu-title {
+  padding: 8px 16px 4px;
+  color: #5b6b8c;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+}
+
+.sort-option.selected {
+  background: #e6edff;
+  font-weight: 600;
+}

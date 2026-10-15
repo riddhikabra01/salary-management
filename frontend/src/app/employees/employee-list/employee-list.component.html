@@ -8,13 +8,16 @@
       <span class="count" aria-live="polite">
         {{ totalElements() | number }} {{ totalElements() === 1 ? 'employee' : 'employees' }}
       </span>
+      @if (!isDefaultSort()) {
+        <button mat-button type="button" class="reset-sort" (click)="resetSort()">Reset sort</button>
+      }
       <button mat-flat-button color="primary" type="button" class="add" (click)="addEmployee()">
         Add employee
       </button>
     </div>
   </header>
 
-  <!-- Filter panel: the Filters button toggles it. Inside are the dropdown filters and the "Then sort by" control. -->
+  <!-- Filter panel: the Filters button shows or hides the country, department and job title dropdowns. -->
   <div class="card filters-card">
     <form class="filters" [formGroup]="filters">
       <div class="filters-top">
@@ -76,30 +79,6 @@
             </mat-select>
           </mat-form-field>
         </div>
-
-        <!-- Second sort level: pick a column, then a direction worded for that column (A–Z, low to high, oldest first). -->
-        <div class="secondary-sort">
-          <mat-form-field appearance="outline">
-            <mat-label>Then sort by</mat-label>
-            <mat-select [value]="secondarySortBy" (selectionChange)="onSecondarySort($event.value)">
-              <mat-option value="">None (name)</mat-option>
-              @for (option of secondaryOptions(); track option.value) {
-                <mat-option [value]="option.value">{{ option.label }}</mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
-
-          @if (secondarySortBy) {
-            <mat-button-toggle-group
-              aria-label="Secondary sort direction"
-              [value]="secondaryDirection"
-              (change)="onSecondaryDirection($event.value)"
-            >
-              <mat-button-toggle value="asc">{{ directionLabel(secondarySortBy, 'asc') }}</mat-button-toggle>
-              <mat-button-toggle value="desc">{{ directionLabel(secondarySortBy, 'desc') }}</mat-button-toggle>
-            </mat-button-toggle-group>
-          }
-        </div>
       }
     </form>
   </div>
@@ -113,16 +92,9 @@
       <p class="error" role="alert">{{ message }}</p>
     }
 
-    <!-- Plain-language summary of the active sort, so the order is never a mystery. -->
-    <div class="sort-bar">
-      <span class="sort-summary">Sorted by <strong>{{ sortSummary() }}</strong></span>
-      @if (!isDefaultSort()) {
-        <button mat-button type="button" class="reset-sort" (click)="resetSort()">Reset sort</button>
-      }
-    </div>
-
     <div class="table-wrapper">
-      <!-- Clicking a header sets the PRIMARY sort. The secondary sort lives in the filter panel. -->
+      <!-- Clicking a header label sets the PRIMARY sort (the arrow). The small filter icon beside it opens a menu
+           for the SECONDARY sort ("then sort by this column"). -->
       <table
         mat-table
         matSort
@@ -133,41 +105,181 @@
         (matSortChange)="onSort($event)"
       >
         <ng-container matColumnDef="fullName">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
+          <th mat-header-cell *matHeaderCellDef>
+            <div class="head-cell">
+              <span mat-sort-header="fullName">Name</span>
+              <button
+                type="button"
+                class="col-filter"
+                [class.active]="secondarySortBy === 'fullName'"
+                [disabled]="sortBy === 'fullName'"
+                [matMenuTriggerFor]="columnMenu"
+                [matMenuTriggerData]="{ column: 'fullName' }"
+                [attr.aria-label]="'Then sort by Name'"
+                [title]="filterTitle('fullName')"
+                (click)="$event.stopPropagation()"
+                (keydown)="$event.stopPropagation()"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path d="M10 18h4v-2h-4v2zM3 6v2h18V6H3zm3 7h12v-2H6v2z" />
+                </svg>
+              </button>
+            </div>
+          </th>
           <td mat-cell *matCellDef="let employee" class="name">{{ employee.fullName }}</td>
         </ng-container>
 
         <ng-container matColumnDef="email">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Email</th>
+          <th mat-header-cell *matHeaderCellDef>
+            <div class="head-cell">
+              <span mat-sort-header="email">Email</span>
+              <button
+                type="button"
+                class="col-filter"
+                [class.active]="secondarySortBy === 'email'"
+                [disabled]="sortBy === 'email'"
+                [matMenuTriggerFor]="columnMenu"
+                [matMenuTriggerData]="{ column: 'email' }"
+                [attr.aria-label]="'Then sort by Email'"
+                [title]="filterTitle('email')"
+                (click)="$event.stopPropagation()"
+                (keydown)="$event.stopPropagation()"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path d="M10 18h4v-2h-4v2zM3 6v2h18V6H3zm3 7h12v-2H6v2z" />
+                </svg>
+              </button>
+            </div>
+          </th>
           <td mat-cell *matCellDef="let employee">{{ employee.email }}</td>
         </ng-container>
 
         <ng-container matColumnDef="jobTitle">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Job title</th>
+          <th mat-header-cell *matHeaderCellDef>
+            <div class="head-cell">
+              <span mat-sort-header="jobTitle">Job title</span>
+              <button
+                type="button"
+                class="col-filter"
+                [class.active]="secondarySortBy === 'jobTitle'"
+                [disabled]="sortBy === 'jobTitle'"
+                [matMenuTriggerFor]="columnMenu"
+                [matMenuTriggerData]="{ column: 'jobTitle' }"
+                [attr.aria-label]="'Then sort by Job title'"
+                [title]="filterTitle('jobTitle')"
+                (click)="$event.stopPropagation()"
+                (keydown)="$event.stopPropagation()"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path d="M10 18h4v-2h-4v2zM3 6v2h18V6H3zm3 7h12v-2H6v2z" />
+                </svg>
+              </button>
+            </div>
+          </th>
           <td mat-cell *matCellDef="let employee">{{ employee.jobTitle }}</td>
         </ng-container>
 
         <ng-container matColumnDef="department">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Department</th>
+          <th mat-header-cell *matHeaderCellDef>
+            <div class="head-cell">
+              <span mat-sort-header="department">Department</span>
+              <button
+                type="button"
+                class="col-filter"
+                [class.active]="secondarySortBy === 'department'"
+                [disabled]="sortBy === 'department'"
+                [matMenuTriggerFor]="columnMenu"
+                [matMenuTriggerData]="{ column: 'department' }"
+                [attr.aria-label]="'Then sort by Department'"
+                [title]="filterTitle('department')"
+                (click)="$event.stopPropagation()"
+                (keydown)="$event.stopPropagation()"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path d="M10 18h4v-2h-4v2zM3 6v2h18V6H3zm3 7h12v-2H6v2z" />
+                </svg>
+              </button>
+            </div>
+          </th>
           <td mat-cell *matCellDef="let employee">
             <span class="pill">{{ employee.department }}</span>
           </td>
         </ng-container>
 
         <ng-container matColumnDef="country">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Country</th>
+          <th mat-header-cell *matHeaderCellDef>
+            <div class="head-cell">
+              <span mat-sort-header="country">Country</span>
+              <button
+                type="button"
+                class="col-filter"
+                [class.active]="secondarySortBy === 'country'"
+                [disabled]="sortBy === 'country'"
+                [matMenuTriggerFor]="columnMenu"
+                [matMenuTriggerData]="{ column: 'country' }"
+                [attr.aria-label]="'Then sort by Country'"
+                [title]="filterTitle('country')"
+                (click)="$event.stopPropagation()"
+                (keydown)="$event.stopPropagation()"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path d="M10 18h4v-2h-4v2zM3 6v2h18V6H3zm3 7h12v-2H6v2z" />
+                </svg>
+              </button>
+            </div>
+          </th>
           <td mat-cell *matCellDef="let employee">{{ employee.country }}</td>
         </ng-container>
 
         <ng-container matColumnDef="salary">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header class="numeric">Salary</th>
+          <th mat-header-cell *matHeaderCellDef class="numeric">
+            <div class="head-cell">
+              <span mat-sort-header="salary">Salary</span>
+              <button
+                type="button"
+                class="col-filter"
+                [class.active]="secondarySortBy === 'salary'"
+                [disabled]="sortBy === 'salary'"
+                [matMenuTriggerFor]="columnMenu"
+                [matMenuTriggerData]="{ column: 'salary' }"
+                [attr.aria-label]="'Then sort by Salary'"
+                [title]="filterTitle('salary')"
+                (click)="$event.stopPropagation()"
+                (keydown)="$event.stopPropagation()"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path d="M10 18h4v-2h-4v2zM3 6v2h18V6H3zm3 7h12v-2H6v2z" />
+                </svg>
+              </button>
+            </div>
+          </th>
           <td mat-cell *matCellDef="let employee" class="numeric salary">
             {{ employee.salary | currency: employee.currency : 'symbol-narrow' : '1.0-0' }}
           </td>
         </ng-container>
 
         <ng-container matColumnDef="joiningDate">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Joined</th>
+          <th mat-header-cell *matHeaderCellDef>
+            <div class="head-cell">
+              <span mat-sort-header="joiningDate">Joined</span>
+              <button
+                type="button"
+                class="col-filter"
+                [class.active]="secondarySortBy === 'joiningDate'"
+                [disabled]="sortBy === 'joiningDate'"
+                [matMenuTriggerFor]="columnMenu"
+                [matMenuTriggerData]="{ column: 'joiningDate' }"
+                [attr.aria-label]="'Then sort by Joined'"
+                [title]="filterTitle('joiningDate')"
+                (click)="$event.stopPropagation()"
+                (keydown)="$event.stopPropagation()"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path d="M10 18h4v-2h-4v2zM3 6v2h18V6H3zm3 7h12v-2H6v2z" />
+                </svg>
+              </button>
+            </div>
+          </th>
           <td mat-cell *matCellDef="let employee">{{ employee.joiningDate | date: 'mediumDate' }}</td>
         </ng-container>
 
@@ -204,6 +316,23 @@
         </tr>
       </table>
     </div>
+
+    <!-- One shared menu for every column header. The filter button tells it which column it belongs to,
+         and the wording (A–Z, low to high, oldest first...) adapts to that column. -->
+    <mat-menu #columnMenu="matMenu" class="sort-menu">
+      <ng-template matMenuContent let-column="column">
+        <div class="sort-menu-title" (click)="$event.stopPropagation()">Then sort by {{ columnLabel(column) }}</div>
+        <button mat-menu-item type="button" class="sort-option" [class.selected]="isSecondary(column, 'asc')" (click)="setSecondarySort(column, 'asc')">
+          {{ directionLabel(column, 'asc') }}
+        </button>
+        <button mat-menu-item type="button" class="sort-option" [class.selected]="isSecondary(column, 'desc')" (click)="setSecondarySort(column, 'desc')">
+          {{ directionLabel(column, 'desc') }}
+        </button>
+        @if (isSecondary(column)) {
+          <button mat-menu-item type="button" class="sort-option clear-option" (click)="clearSecondarySort()">Clear</button>
+        }
+      </ng-template>
+    </mat-menu>
 
     <mat-paginator
       [length]="totalElements()"

@@ -3,10 +3,10 @@ import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatMenuModule } from '@angular/material/menu';
 import { PageEvent, MatPaginatorModule } from '@angular/material/paginator';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
@@ -61,9 +61,9 @@ function describeDirection(column: string, direction: SortDirection): string {
     DatePipe,
     DecimalPipe,
     MatButtonModule,
-    MatButtonToggleModule,
     MatFormFieldModule,
     MatInputModule,
+    MatMenuModule,
     MatPaginatorModule,
     MatProgressBarModule,
     MatSelectModule,
@@ -102,7 +102,7 @@ export class EmployeeListComponent implements OnInit {
   readonly loading = signal(false);
   readonly errorMessage = signal<string | null>(null);
   readonly options = signal<FilterOptions>({ countries: [], departments: [], jobTitles: [] });
-  // Whether the filter panel (filters plus secondary sort) is expanded.
+  // Whether the dropdown filters (country, department, job title) are expanded.
   readonly filtersOpen = signal(true);
 
   pageIndex = 0;
@@ -191,20 +191,6 @@ export class EmployeeListComponent implements OnInit {
     return this.sortBy === DEFAULT_SORT && this.direction === 'asc' && this.secondarySortBy === '';
   }
 
-  // The "Sorted by Country (A–Z), then Salary (high to low), then Name (A–Z)" line.
-  // The trailing Name level mirrors the backend's tie-breaker, so what you read is what you get.
-  sortSummary(): string {
-    const levels = [this.describeLevel(this.sortBy, this.direction)];
-    if (this.secondarySortBy) {
-      levels.push(this.describeLevel(this.secondarySortBy, this.secondaryDirection));
-    }
-    const nameAlreadyUsed = this.sortBy === DEFAULT_SORT || this.secondarySortBy === DEFAULT_SORT;
-    if (!nameAlreadyUsed) {
-      levels.push('Name (A–Z)');
-    }
-    return levels.join(', then ');
-  }
-
   resetSort(): void {
     this.sortBy = DEFAULT_SORT;
     this.direction = 'asc';
@@ -214,28 +200,50 @@ export class EmployeeListComponent implements OnInit {
     this.reload$.next();
   }
 
-  // The dropdown can't offer the column that is already the primary sort.
-  secondaryOptions(): { value: string; label: string }[] {
-    return Object.entries(COLUMN_LABELS)
-      .filter(([column]) => column !== this.sortBy)
-      .map(([value, label]) => ({ value, label }));
-  }
-
   directionLabel(column: string, direction: SortDirection): string {
     const label = describeDirection(column, direction);
     return label.charAt(0).toUpperCase() + label.slice(1);
   }
 
-  onSecondarySort(column: string): void {
+  // Called from a column's filter menu. Sets "then sort by this column" with the chosen direction.
+  // The main sort column can't be its own tie-breaker, so that case is ignored.
+  setSecondarySort(column: string, direction: SortDirection): void {
+    if (column === this.sortBy) {
+      return;
+    }
     this.secondarySortBy = column;
+    this.secondaryDirection = direction;
     this.pageIndex = 0;
     this.reload$.next();
   }
 
-  onSecondaryDirection(direction: SortDirection): void {
-    this.secondaryDirection = direction;
+  // The menu's "Clear" option: back to the main sort, then name.
+  clearSecondarySort(): void {
+    this.secondarySortBy = '';
+    this.secondaryDirection = 'asc';
     this.pageIndex = 0;
     this.reload$.next();
+  }
+
+  // True when this column is the secondary sort (optionally in a specific direction).
+  // Used to tick the current choice in the menu and light up the filter icon.
+  isSecondary(column: string, direction?: SortDirection): boolean {
+    return this.secondarySortBy === column && (direction === undefined || this.secondaryDirection === direction);
+  }
+
+  columnLabel(column: string): string {
+    return COLUMN_LABELS[column] ?? column;
+  }
+
+  // Tooltip for a column's filter icon.
+  filterTitle(column: string): string {
+    if (column === this.sortBy) {
+      return 'This is the main sort column';
+    }
+    if (this.isSecondary(column)) {
+      return `Then sorted ${this.directionLabel(column, this.secondaryDirection)}`;
+    }
+    return 'Then sort by this column';
   }
 
   addEmployee(): void {
@@ -305,10 +313,6 @@ export class EmployeeListComponent implements OnInit {
 
   private notify(message: string): void {
     this.snackBar.open(message, 'Dismiss', { duration: NOTIFICATION_MS });
-  }
-
-  private describeLevel(column: string, direction: SortDirection): string {
-    return `${COLUMN_LABELS[column] ?? column} (${describeDirection(column, direction)})`;
   }
 
   // Snapshot of the current screen state, in the shape the API service expects.

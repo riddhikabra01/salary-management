@@ -109,23 +109,6 @@ h1 {
   overflow: hidden;
 }
 
-.sort-bar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-  min-height: 44px;
-  padding: 4px 16px;
-  border-bottom: 1px solid #e3e8f4;
-  background: #f6f8fe;
-  color: #5b6b8c;
-  font-size: 14px;
-}
-
-.sort-summary strong {
-  color: #1b2a4a;
-}
-
 .error {
   margin: 12px 16px;
   color: #b3261e;
@@ -246,27 +229,51 @@ mat-paginator {
   }
 }
 
-/* Secondary sort control inside the filter panel. The bottom margin on the toggle lines it up
-   with the form field, which reserves space for its hint text. */
-.secondary-sort {
-  display: flex;
-  flex-wrap: wrap;
+/* Header cell: the sortable label, then a small filter button for the "then sort by" menu. */
+.head-cell {
+  display: inline-flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 8px;
+  gap: 4px;
 }
 
-.secondary-sort mat-form-field {
-  min-width: 220px;
+.numeric .head-cell {
+  justify-content: flex-end;
 }
 
-.secondary-sort mat-button-toggle-group {
-  margin-bottom: 22px;
+.col-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  height: 24px;
+  min-width: 24px;
+  padding: 0 4px;
+  border: none;
+  border-radius: 12px;
+  background: transparent;
+  color: #5b6b8c;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
 }
 
-@media (max-width: 600px) {
-  .secondary-sort mat-form-field {
-    flex: 1 1 100%;
-    min-width: 0;
-  }
+.col-filter svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+
+.col-filter:hover:not(:disabled) {
+  background: #d5ddee;
+}
+
+/* Lit up when this column is the current secondary sort. */
+.col-filter.active {
+  background: #1f3f8f;
+  color: #ffffff;
+}
+
+/* The main sort column can't also be its own tie-breaker. */
+.col-filter:disabled {
+  opacity: 0.3;
+  cursor: default;
 }
