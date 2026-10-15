@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: salary-management
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    healthCheckPath: /api/insights/filter-options
+    envVars:
+      # Load the 10,000 sample employees each time the app starts.
+      - key: APP_SEED_ENABLED
+        value: "true"
+      # Keep the demo database in memory: the free tier has no persistent disk.
+      - key: SPRING_DATASOURCE_URL
+        value: jdbc:h2:mem:salary;DB_CLOSE_DELAY=-1

@@ -1,0 +1,8 @@
+.git
+**/node_modules
+**/target
+**/data
+frontend/dist
+frontend/.angular
+backend/src/main/resources/static
+*.md
