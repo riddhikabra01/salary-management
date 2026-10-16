@@ -162,13 +162,13 @@ describe('EmployeeFormDialogComponent', () => {
   it('tells the user the department can be changed when editing', () => {
     setup(ASHA);
 
-    expect(fixture.nativeElement.textContent).toContain('Change to move to another department');
+    expect(fixture.nativeElement.querySelector('.intro').textContent).toContain('including the department');
   });
 
-  it('does not show the move hint when adding an employee', () => {
+  it('does not show that guidance when adding an employee', () => {
     setup(null);
 
-    expect(fixture.nativeElement.textContent).not.toContain('Change to move to another department');
+    expect(fixture.nativeElement.querySelector('.intro')).toBeNull();
   });
 
   it('shows that the email is already taken', () => {

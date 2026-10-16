@@ -9,6 +9,13 @@
   grid-column: 1 / -1;
 }
 
+/* One line of guidance above the fields when editing. It sits above the grid rows, so it never crowds a field. */
+.intro {
+  margin: 0 0 12px;
+  color: #5b6b8c;
+  font-size: 14px;
+}
+
 .error {
   margin: 0 0 8px;
   color: #b3261e;
