@@ -8,6 +8,7 @@ import {
   ValidationErrors,
   Validators,
 } from '@angular/forms';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -40,7 +41,14 @@ function notBlank(control: AbstractControl): ValidationErrors | null {
 @Component({
   selector: 'app-employee-form-dialog',
   standalone: true,
-  imports: [ReactiveFormsModule, MatDialogModule, MatButtonModule, MatFormFieldModule, MatInputModule],
+  imports: [
+    ReactiveFormsModule,
+    MatAutocompleteModule,
+    MatDialogModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule,
+  ],
   templateUrl: './employee-form-dialog.component.html',
   styleUrl: './employee-form-dialog.component.scss',
 })
@@ -75,6 +83,18 @@ export class EmployeeFormDialogComponent {
 
   readonly saving = signal(false);
   readonly errorMessage = signal<string | null>(null);
+
+  // The list shown under a text box. The browser's built-in suggestions only show entries that match what is
+  // already typed, so an edit form holding "Engineering" would offer nothing else. Here, a box that already holds
+  // a complete option (or is empty) shows every option, so another one can be picked. Typing anything else
+  // narrows the list. A value that isn't in the list is still allowed, which is how a new department is added.
+  suggestions(all: string[], current: string | null): string[] {
+    const text = (current ?? '').trim().toLowerCase();
+    if (text === '' || all.some((option) => option.toLowerCase() === text)) {
+      return all;
+    }
+    return all.filter((option) => option.toLowerCase().includes(text));
+  }
 
   // Save button. Stops early and highlights problems if the form is invalid; otherwise creates or updates.
   submit(): void {

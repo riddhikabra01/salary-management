@@ -9,6 +9,15 @@
   grid-column: 1 / -1;
 }
 
+/* The little arrow at the end of the dropdown-style text boxes. Clicks on it fall through to the field, which opens the list. */
+.caret {
+  width: 24px;
+  height: 24px;
+  margin-right: 8px;
+  fill: #5b6b8c;
+  pointer-events: none;
+}
+
 /* One line of guidance above the fields when editing. It sits above the grid rows, so it never crowds a field. */
 .intro {
   margin: 0 0 12px;

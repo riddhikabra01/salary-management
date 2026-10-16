@@ -159,6 +159,47 @@ describe('EmployeeFormDialogComponent', () => {
     expect(dialogRef.close).toHaveBeenCalled();
   });
 
+  it('offers every option when the box already holds one, so another can be picked', () => {
+    setup(ASHA);
+
+    expect(component.suggestions(OPTIONS.departments, 'Engineering')).toEqual(['Analytics', 'Engineering']);
+    expect(component.suggestions(OPTIONS.departments, 'engineering')).toEqual(['Analytics', 'Engineering']);
+  });
+
+  it('offers every option when the box is empty', () => {
+    setup(null);
+
+    expect(component.suggestions(OPTIONS.departments, '')).toEqual(['Analytics', 'Engineering']);
+    expect(component.suggestions(OPTIONS.departments, null)).toEqual(['Analytics', 'Engineering']);
+  });
+
+  it('narrows the options while typing something else', () => {
+    setup(null);
+
+    expect(component.suggestions(OPTIONS.departments, 'ana')).toEqual(['Analytics']);
+    expect(component.suggestions(OPTIONS.departments, 'zzz')).toEqual([]);
+  });
+
+  it('shows the job title, department and country boxes as lists to pick from', () => {
+    setup(ASHA);
+
+    for (const name of ['jobTitle', 'department', 'country']) {
+      const input = fixture.nativeElement.querySelector(`input[formControlName="${name}"]`);
+      expect(input.getAttribute('aria-autocomplete')).toBe('list');
+    }
+  });
+
+  it('still accepts a department that is not in the list yet', () => {
+    setup(ASHA);
+    component.form.controls.department.setValue('Legal');
+
+    component.submit();
+
+    const call = http.expectOne('/api/employees/1');
+    expect(call.request.body.department).toBe('Legal');
+    call.flush({ ...ASHA, department: 'Legal' });
+  });
+
   it('tells the user the department can be changed when editing', () => {
     setup(ASHA);
 

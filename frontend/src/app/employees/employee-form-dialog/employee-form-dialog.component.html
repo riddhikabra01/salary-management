@@ -18,21 +18,39 @@
       <mat-error>{{ errorFor(form.controls.email) }}</mat-error>
     </mat-form-field>
 
-    <mat-form-field appearance="outline">
+    <mat-form-field appearance="outline" (click)="jobTitleTrigger.openPanel()">
       <mat-label>Job title</mat-label>
-      <input matInput formControlName="jobTitle" list="job-title-options" autocomplete="off" />
+      <input matInput formControlName="jobTitle" [matAutocomplete]="jobTitleList" #jobTitleTrigger="matAutocompleteTrigger" />
+      <svg matSuffix class="caret" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5z" /></svg>
+      <mat-autocomplete #jobTitleList="matAutocomplete">
+        @for (option of suggestions(data.options.jobTitles, form.controls.jobTitle.value); track option) {
+          <mat-option [value]="option">{{ option }}</mat-option>
+        }
+      </mat-autocomplete>
       <mat-error>{{ errorFor(form.controls.jobTitle) }}</mat-error>
     </mat-form-field>
 
-    <mat-form-field appearance="outline">
+    <mat-form-field appearance="outline" (click)="departmentTrigger.openPanel()">
       <mat-label>Department</mat-label>
-      <input matInput formControlName="department" list="department-options" autocomplete="off" />
+      <input matInput formControlName="department" [matAutocomplete]="departmentList" #departmentTrigger="matAutocompleteTrigger" />
+      <svg matSuffix class="caret" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5z" /></svg>
+      <mat-autocomplete #departmentList="matAutocomplete">
+        @for (option of suggestions(data.options.departments, form.controls.department.value); track option) {
+          <mat-option [value]="option">{{ option }}</mat-option>
+        }
+      </mat-autocomplete>
       <mat-error>{{ errorFor(form.controls.department) }}</mat-error>
     </mat-form-field>
 
-    <mat-form-field appearance="outline">
+    <mat-form-field appearance="outline" (click)="countryTrigger.openPanel()">
       <mat-label>Country</mat-label>
-      <input matInput formControlName="country" list="country-options" autocomplete="off" />
+      <input matInput formControlName="country" [matAutocomplete]="countryList" #countryTrigger="matAutocompleteTrigger" />
+      <svg matSuffix class="caret" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5z" /></svg>
+      <mat-autocomplete #countryList="matAutocomplete">
+        @for (option of suggestions(data.options.countries, form.controls.country.value); track option) {
+          <mat-option [value]="option">{{ option }}</mat-option>
+        }
+      </mat-autocomplete>
       <mat-error>{{ errorFor(form.controls.country) }}</mat-error>
     </mat-form-field>
 
@@ -67,19 +85,3 @@
     </button>
   </mat-dialog-actions>
 </form>
-
-<datalist id="job-title-options">
-  @for (jobTitle of data.options.jobTitles; track jobTitle) {
-    <option [value]="jobTitle"></option>
-  }
-</datalist>
-<datalist id="department-options">
-  @for (department of data.options.departments; track department) {
-    <option [value]="department"></option>
-  }
-</datalist>
-<datalist id="country-options">
-  @for (country of data.options.countries; track country) {
-    <option [value]="country"></option>
-  }
-</datalist>
