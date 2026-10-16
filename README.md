@@ -17,6 +17,15 @@ countries, and to see how the organisation pays its people.
 
 Scope, assumptions and what was left out on purpose are in [`docs/requirements.md`](docs/requirements.md).
 
+## Try it in two minutes
+1. Open the live demo. The first load can take up to a minute on Render's free plan.
+2. **Search and filter:** type a name in the search box, or open **Filters** and pick a country, department or job title.
+3. **Sort:** click a column name to sort by it. Click the small filter icon beside a column name for a second sort, for example country first, then salary high to low.
+4. **Change an employee's department:** click **Edit** on any row, click the **Department** box and pick another department from the list (or type a new one), update the **Job title** if the role changes too, then click **Save**. The row and the Department filter update straight away.
+5. **Add and delete:** use **Add employee**, and the **Delete** link on a row.
+6. **Insights:** open the Insights page, pick a country, change the number of bands, and choose a job title to see its average salary.
+
+The demo keeps its data in memory, so edits reset whenever Render restarts the app.
 ## Tech
 | Part | Choice |
 |---|---|
