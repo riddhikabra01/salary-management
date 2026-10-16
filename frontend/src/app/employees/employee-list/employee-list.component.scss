@@ -236,8 +236,8 @@ mat-paginator {
   gap: 4px;
 }
 
-/* No sort arrows: they cluttered the header next to the filter icon. The column being sorted is shown
-   with a blue label instead, and its tooltip says the direction. */
+/* Sort arrows are hidden to keep the header tidy next to the filter icon. The sorted column gets a
+   blue label instead, and its tooltip gives the direction. */
 .head-cell ::ng-deep .mat-sort-header-arrow {
   display: none;
 }

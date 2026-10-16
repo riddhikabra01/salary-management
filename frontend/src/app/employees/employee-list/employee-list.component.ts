@@ -28,7 +28,7 @@ const DEFAULT_SORT = 'fullName';
 const SEARCH_DELAY_MS = 300;
 const NOTIFICATION_MS = 4000;
 
-// Friendly names for the "Then sort by" dropdown and the sort summary.
+// Friendly column names, used as the title of each column's "Then sort by" menu.
 const COLUMN_LABELS: Record<string, string> = {
   fullName: 'Name',
   email: 'Email',
@@ -235,7 +235,7 @@ export class EmployeeListComponent implements OnInit {
     return COLUMN_LABELS[column] ?? column;
   }
 
-  // Tooltip for a sortable header label. With the arrows gone, this is how you can read the direction.
+  // Tooltip for a sortable header label. The headers show no arrow, so this is where the current direction is spelled out.
   sortHint(column: string): string {
     if (column === this.sortBy) {
       return `Sorted ${this.directionLabel(column, this.direction)}. Click to reverse.`;

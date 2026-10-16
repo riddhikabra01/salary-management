@@ -17,12 +17,20 @@
     <mat-form-field appearance="outline">
       <mat-label>Job title</mat-label>
       <input matInput formControlName="jobTitle" list="job-title-options" autocomplete="off" />
+      @if (isEdit) {
+        <mat-hint>Update too if the role changes</mat-hint>
+      }
       <mat-error>{{ errorFor(form.controls.jobTitle) }}</mat-error>
     </mat-form-field>
 
     <mat-form-field appearance="outline">
       <mat-label>Department</mat-label>
       <input matInput formControlName="department" list="department-options" autocomplete="off" />
+      @if (isEdit) {
+        <mat-hint>Change to move to another department</mat-hint>
+      } @else {
+        <mat-hint>Pick one or type a new one</mat-hint>
+      }
       <mat-error>{{ errorFor(form.controls.department) }}</mat-error>
     </mat-form-field>
 

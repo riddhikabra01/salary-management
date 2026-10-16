@@ -144,6 +144,33 @@ describe('EmployeeFormDialogComponent', () => {
     expect(dialogRef.close).toHaveBeenCalledWith(updated);
   });
 
+  it('moves an employee to another department and updates the job title with it', () => {
+    setup(ASHA);
+    component.form.controls.department.setValue('Human Resources');
+    component.form.controls.jobTitle.setValue('Recruiter');
+
+    component.submit();
+
+    const call = http.expectOne('/api/employees/1');
+    expect(call.request.method).toBe('PUT');
+    expect(call.request.body.department).toBe('Human Resources');
+    expect(call.request.body.jobTitle).toBe('Recruiter');
+    call.flush({ ...ASHA, department: 'Human Resources', jobTitle: 'Recruiter' });
+    expect(dialogRef.close).toHaveBeenCalled();
+  });
+
+  it('tells the user the department can be changed when editing', () => {
+    setup(ASHA);
+
+    expect(fixture.nativeElement.textContent).toContain('Change to move to another department');
+  });
+
+  it('does not show the move hint when adding an employee', () => {
+    setup(null);
+
+    expect(fixture.nativeElement.textContent).not.toContain('Change to move to another department');
+  });
+
   it('shows that the email is already taken', () => {
     setup(null);
     component.form.setValue(NEW_EMPLOYEE_FORM);
