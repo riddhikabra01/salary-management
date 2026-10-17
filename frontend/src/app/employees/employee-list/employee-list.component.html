@@ -93,8 +93,8 @@
     }
 
     <div class="table-wrapper">
-      <!-- Clicking a header label sets the PRIMARY sort (click again to reverse). The small filter icon beside it opens a menu
-           for the SECONDARY sort ("then sort by this column"). -->
+      <!-- Clicking a header label sets the PRIMARY sort (click again to reverse). The small filter icon beside it opens a menu with the
+           order for that column. On the main column it flips the order; on another column it adds a "then sort by" level. -->
       <table
         mat-table
         matSort
@@ -112,10 +112,9 @@
                 type="button"
                 class="col-filter"
                 [class.active]="secondarySortBy === 'fullName'"
-                [disabled]="sortBy === 'fullName'"
                 [matMenuTriggerFor]="columnMenu"
                 [matMenuTriggerData]="{ column: 'fullName' }"
-                [attr.aria-label]="'Then sort by Name'"
+                [attr.aria-label]=\"sortMenuTitle('fullName')\"
                 [title]="filterTitle('fullName')"
                 (click)="$event.stopPropagation()"
                 (keydown)="$event.stopPropagation()"
@@ -137,10 +136,9 @@
                 type="button"
                 class="col-filter"
                 [class.active]="secondarySortBy === 'email'"
-                [disabled]="sortBy === 'email'"
                 [matMenuTriggerFor]="columnMenu"
                 [matMenuTriggerData]="{ column: 'email' }"
-                [attr.aria-label]="'Then sort by Email'"
+                [attr.aria-label]=\"sortMenuTitle('email')\"
                 [title]="filterTitle('email')"
                 (click)="$event.stopPropagation()"
                 (keydown)="$event.stopPropagation()"
@@ -162,10 +160,9 @@
                 type="button"
                 class="col-filter"
                 [class.active]="secondarySortBy === 'jobTitle'"
-                [disabled]="sortBy === 'jobTitle'"
                 [matMenuTriggerFor]="columnMenu"
                 [matMenuTriggerData]="{ column: 'jobTitle' }"
-                [attr.aria-label]="'Then sort by Job title'"
+                [attr.aria-label]=\"sortMenuTitle('jobTitle')\"
                 [title]="filterTitle('jobTitle')"
                 (click)="$event.stopPropagation()"
                 (keydown)="$event.stopPropagation()"
@@ -187,10 +184,9 @@
                 type="button"
                 class="col-filter"
                 [class.active]="secondarySortBy === 'department'"
-                [disabled]="sortBy === 'department'"
                 [matMenuTriggerFor]="columnMenu"
                 [matMenuTriggerData]="{ column: 'department' }"
-                [attr.aria-label]="'Then sort by Department'"
+                [attr.aria-label]=\"sortMenuTitle('department')\"
                 [title]="filterTitle('department')"
                 (click)="$event.stopPropagation()"
                 (keydown)="$event.stopPropagation()"
@@ -214,10 +210,9 @@
                 type="button"
                 class="col-filter"
                 [class.active]="secondarySortBy === 'country'"
-                [disabled]="sortBy === 'country'"
                 [matMenuTriggerFor]="columnMenu"
                 [matMenuTriggerData]="{ column: 'country' }"
-                [attr.aria-label]="'Then sort by Country'"
+                [attr.aria-label]=\"sortMenuTitle('country')\"
                 [title]="filterTitle('country')"
                 (click)="$event.stopPropagation()"
                 (keydown)="$event.stopPropagation()"
@@ -239,10 +234,9 @@
                 type="button"
                 class="col-filter"
                 [class.active]="secondarySortBy === 'salary'"
-                [disabled]="sortBy === 'salary'"
                 [matMenuTriggerFor]="columnMenu"
                 [matMenuTriggerData]="{ column: 'salary' }"
-                [attr.aria-label]="'Then sort by Salary'"
+                [attr.aria-label]=\"sortMenuTitle('salary')\"
                 [title]="filterTitle('salary')"
                 (click)="$event.stopPropagation()"
                 (keydown)="$event.stopPropagation()"
@@ -266,10 +260,9 @@
                 type="button"
                 class="col-filter"
                 [class.active]="secondarySortBy === 'joiningDate'"
-                [disabled]="sortBy === 'joiningDate'"
                 [matMenuTriggerFor]="columnMenu"
                 [matMenuTriggerData]="{ column: 'joiningDate' }"
-                [attr.aria-label]="'Then sort by Joined'"
+                [attr.aria-label]=\"sortMenuTitle('joiningDate')\"
                 [title]="filterTitle('joiningDate')"
                 (click)="$event.stopPropagation()"
                 (keydown)="$event.stopPropagation()"
@@ -321,11 +314,11 @@
          and the wording (A–Z, low to high, oldest first...) adapts to that column. -->
     <mat-menu #columnMenu="matMenu" class="sort-menu">
       <ng-template matMenuContent let-column="column">
-        <div class="sort-menu-title" (click)="$event.stopPropagation()">Then sort by {{ columnLabel(column) }}</div>
-        <button mat-menu-item type="button" class="sort-option" [class.selected]="isSecondary(column, 'asc')" (click)="setSecondarySort(column, 'asc')">
+        <div class="sort-menu-title" (click)="$event.stopPropagation()">{{ sortMenuTitle(column) }}</div>
+        <button mat-menu-item type="button" class="sort-option" [class.selected]="isChosen(column, 'asc')" (click)="chooseSort(column, 'asc')">
           {{ directionLabel(column, 'asc') }}
         </button>
-        <button mat-menu-item type="button" class="sort-option" [class.selected]="isSecondary(column, 'desc')" (click)="setSecondarySort(column, 'desc')">
+        <button mat-menu-item type="button" class="sort-option" [class.selected]="isChosen(column, 'desc')" (click)="chooseSort(column, 'desc')">
           {{ directionLabel(column, 'desc') }}
         </button>
         @if (isSecondary(column)) {

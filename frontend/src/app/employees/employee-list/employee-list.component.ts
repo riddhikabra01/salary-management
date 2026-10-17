@@ -205,14 +205,22 @@ export class EmployeeListComponent implements OnInit {
     return label.charAt(0).toUpperCase() + label.slice(1);
   }
 
-  // Called from a column's filter menu. Sets "then sort by this column" with the chosen direction.
-  // The main sort column can't be its own tie-breaker, so that case is ignored.
-  setSecondarySort(column: string, direction: SortDirection): void {
+  // Called from a column's filter menu, with the direction picked there.
+  // - On the main sort column it just flips that column's order.
+  // - While the main sort is still Name, a second level would change nothing you can see, because names
+  //   almost never repeat. So the choice becomes the main sort instead.
+  // - Otherwise it sets the "then sort by" level.
+  chooseSort(column: string, direction: SortDirection): void {
     if (column === this.sortBy) {
-      return;
+      this.direction = direction;
+    } else if (this.sortBy === DEFAULT_SORT) {
+      this.sortBy = column;
+      this.direction = direction;
+      this.secondarySortBy = '';
+    } else {
+      this.secondarySortBy = column;
+      this.secondaryDirection = direction;
     }
-    this.secondarySortBy = column;
-    this.secondaryDirection = direction;
     this.pageIndex = 0;
     this.reload$.next();
   }
@@ -225,8 +233,14 @@ export class EmployeeListComponent implements OnInit {
     this.reload$.next();
   }
 
+  // True when this option is the current choice for the column: its main sort order, or its "then sort by" order.
+  // Used to highlight the option in the menu.
+  isChosen(column: string, direction: SortDirection): boolean {
+    return (column === this.sortBy && this.direction === direction) || this.isSecondary(column, direction);
+  }
+
   // True when this column is the secondary sort (optionally in a specific direction).
-  // Used to tick the current choice in the menu and light up the filter icon.
+  // Used to light up the filter icon.
   isSecondary(column: string, direction?: SortDirection): boolean {
     return this.secondarySortBy === column && (direction === undefined || this.secondaryDirection === direction);
   }
@@ -243,15 +257,21 @@ export class EmployeeListComponent implements OnInit {
     return 'Click to sort by this column';
   }
 
+  // Heading of a column's filter menu. It says "Then sort by" only when the choice would really be a second level.
+  sortMenuTitle(column: string): string {
+    const isSecondLevel = column !== this.sortBy && this.sortBy !== DEFAULT_SORT;
+    return `${isSecondLevel ? 'Then sort by' : 'Sort by'} ${this.columnLabel(column)}`;
+  }
+
   // Tooltip for a column's filter icon.
   filterTitle(column: string): string {
     if (column === this.sortBy) {
-      return 'This is the main sort column';
+      return 'Change the order of the main sort';
     }
     if (this.isSecondary(column)) {
       return `Then sorted ${this.directionLabel(column, this.secondaryDirection)}`;
     }
-    return 'Then sort by this column';
+    return this.sortBy === DEFAULT_SORT ? 'Sort by this column' : 'Then sort by this column';
   }
 
   addEmployee(): void {

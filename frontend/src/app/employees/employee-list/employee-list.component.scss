@@ -281,9 +281,3 @@ mat-paginator {
   background: #1f3f8f;
   color: #ffffff;
 }
-
-/* The main sort column can't also be its own tie-breaker. */
-.col-filter:disabled {
-  opacity: 0.3;
-  cursor: default;
-}
